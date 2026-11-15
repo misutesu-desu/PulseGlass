@@ -326,6 +326,7 @@ namespace PulseGlassWidget
                     snap.Storage.UsagePercent, snap.Storage.IoText, snap.Storage.TemperatureText);
 
                 CompactNetText.Text = string.Format("↓ {0:0.00} MB/s   ↑ {1:0.00} MB/s", snap.Network.DownloadMBps, snap.Network.UploadMBps);
+                CompactFpsText.Text = snap.Fps.HasValue ? string.Format("FPS: {0}", snap.Fps.Value) : "FPS: --";
             }
 
             // Alerts (use Hidden instead of Collapsed so panel never shifts)
@@ -573,14 +574,16 @@ namespace PulseGlassWidget
                 MiniPanel.Visibility = Visibility.Visible;
                 CompactPanel.Visibility = Visibility.Collapsed;
                 DetailedPanel.Visibility = Visibility.Collapsed;
-                Width = 440;
-                BtnGameMode.Content = "Özet ✓";
-                BtnToggleMode.Content = "Detay ⤢";
+                Width = 560;
+                var area = SystemParameters.WorkArea;
+                if (Left + Width > area.Right) Left = Math.Max(area.Left, area.Right - Width - 12);
+                BtnGameMode.Content = _isEnglish ? "Summary ✓" : "Özet ✓";
+                BtnToggleMode.Content = _isEnglish ? "Detail ⤢" : "Detay ⤢";
             }
             else
             {
                 MiniPanel.Visibility = Visibility.Collapsed;
-                BtnGameMode.Content = "Özet ▬";
+                BtnGameMode.Content = _isEnglish ? "Summary ▬" : "Özet ▬";
                 ToggleMode(false);
             }
         }
@@ -1102,7 +1105,6 @@ namespace PulseGlassWidget
             BtnMaximize.ToolTip = en ? "Maximize / Restore" : "Büyüt / Geri yükle";
             BtnMinimize.ToolTip = en ? "Minimize" : "Küçült";
             BtnClose.ToolTip = en ? "Close" : "Kapat";
-            BtnMiniCompact.Content = en ? "Compact ◫" : "Kompakt ◫";
 
             LblCompactGpu.Text = en ? "Discrete GPU" : "Harici GPU";
             LblCompactIGpu.Text = en ? "Integrated GPU" : "Dahili GPU";
