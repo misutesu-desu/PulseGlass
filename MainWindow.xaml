@@ -313,15 +313,17 @@
                                 </Border>
                             </UniformGrid>
 
-                            <!-- Storage & Network Summary Card -->
+                            <!-- Storage, Network & FPS Summary Card -->
                             <Border Style="{StaticResource GlassCard}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="OverviewStorageText" Text="Depolama (SSD): Taranıyor..." Foreground="#FFB085" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock x:Name="OverviewNetText" Grid.Column="1" Text="Ağ: ↓ 0.00 MB/s | ↑ 0.00 MB/s" Foreground="#FF4D6D" FontSize="11.5" FontWeight="SemiBold" Margin="12,0,0,0"/>
+                                    <TextBlock x:Name="OverviewStorageText" Text="Depolama (SSD): Taranıyor..." Foreground="#FFB085" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="OverviewNetText" Grid.Column="1" Text="Ağ: ↓ 0.00 MB/s | ↑ 0.00 MB/s" Foreground="#CBD5E1" FontSize="11.5" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="OverviewFpsText" Grid.Column="2" Text="FPS: --" Foreground="#FF4D6D" FontSize="12" FontWeight="Bold" Margin="14,0,0,0" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </StackPanel>
@@ -590,7 +592,7 @@
                             </Border>
 
                             <Grid Margin="2,4,2,2">
-                                <TextBlock Text="PulseGlass v1.2.0" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
+                                <TextBlock Text="PulseGlass v1.3.0" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
                                 <Button x:Name="BtnResetDefaults" Content="Varsayılanlara Sıfırla" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Click="BtnResetDefaults_Click"/>
                             </Grid>
                         </StackPanel>
@@ -656,7 +658,7 @@
                                 <Grid>
                                     <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
                                         <TextBlock x:Name="LblAppUpdateHeader" Text="PULSEGLASS UYGULAMA GÜNCELLEMESİ" Foreground="#FFB085" FontSize="11" FontWeight="Bold"/>
-                                        <TextBlock x:Name="TxtAppUpdateStatus" Text="Sürüm: v1.2.0 (Henüz denetlenmedi)" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                        <TextBlock x:Name="TxtAppUpdateStatus" Text="Sürüm: v1.3.0 (Henüz denetlenmedi)" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <Button x:Name="BtnInstallAppUpdate" Content="Uygulamayı Güncelle" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" Click="BtnInstallAppUpdate_Click"/>
                                 </Grid>
