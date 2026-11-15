@@ -168,7 +168,7 @@
                 BorderThickness="1.2"
                 BorderBrush="#44FFB085">
             <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <LinearGradientBrush x:Name="GlassBgBrush" StartPoint="0,0" EndPoint="1,1">
                     <GradientStop x:Name="BgStop1" Color="#C7120F18" Offset="0"/>
                     <GradientStop x:Name="BgStop2" Color="#D11C131E" Offset="1"/>
                 </LinearGradientBrush>
