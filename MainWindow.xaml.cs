@@ -145,6 +145,19 @@ namespace PulseGlassWidget
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            if (!_sysControl.IsAdmin && !Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--no-elevate", StringComparison.OrdinalIgnoreCase)))
+            {
+                try
+                {
+                    var exe = Process.GetCurrentProcess().MainModule.FileName;
+                    var psi = new ProcessStartInfo(exe, "--no-elevate") { UseShellExecute = true, Verb = "runas" };
+                    Process.Start(psi);
+                    Close();
+                    return;
+                }
+                catch { }
+            }
+
             var area = SystemParameters.WorkArea;
             var saved = SettingsService.Load();
             if (saved.Left.HasValue && saved.Top.HasValue &&
@@ -295,7 +308,7 @@ namespace PulseGlassWidget
                 if (ChkSumFps.IsChecked == true)
                     parts.Add(snap.Fps.HasValue ? string.Format("FPS: {0}", snap.Fps.Value) : "FPS: --");
 
-                MiniOverlayText.Text = parts.Count > 0 ? string.Join("   •   ", parts) : "Özet kapalı (Ayarlar'dan seçin)";
+                MiniOverlayText.Text = parts.Count > 0 ? string.Join(" • ", parts) : (_isEnglish ? "Summary empty (select in Settings)" : "Özet kapalı (Ayarlar'dan seçin)");
             }
             else if (!_isDetailed)
             {
@@ -387,6 +400,7 @@ namespace PulseGlassWidget
 
                 OverviewNetText.Text = string.Format("Ağ ({0}): ↓ {1:0.00} MB/s | ↑ {2:0.00} MB/s",
                     snap.Network.AdapterName, snap.Network.DownloadMBps, snap.Network.UploadMBps);
+                OverviewFpsText.Text = snap.Fps.HasValue ? string.Format("FPS: {0}", snap.Fps.Value) : "FPS: --";
             }
             else if (ViewHardware.Visibility == Visibility.Visible)
             {
@@ -574,14 +588,17 @@ namespace PulseGlassWidget
                 MiniPanel.Visibility = Visibility.Visible;
                 CompactPanel.Visibility = Visibility.Collapsed;
                 DetailedPanel.Visibility = Visibility.Collapsed;
-                Width = 560;
-                var area = SystemParameters.WorkArea;
-                if (Left + Width > area.Right) Left = Math.Max(area.Left, area.Right - Width - 12);
+                MinWidth = 360;
+                MaxWidth = 640;
+                SizeToContent = SizeToContent.WidthAndHeight;
                 BtnGameMode.Content = _isEnglish ? "Summary ✓" : "Özet ✓";
                 BtnToggleMode.Content = _isEnglish ? "Detail ⤢" : "Detay ⤢";
             }
             else
             {
+                SizeToContent = SizeToContent.WidthAndHeight;
+                MinWidth = 0;
+                MaxWidth = double.PositiveInfinity;
                 MiniPanel.Visibility = Visibility.Collapsed;
                 BtnGameMode.Content = _isEnglish ? "Summary ▬" : "Özet ▬";
                 ToggleMode(false);
@@ -590,6 +607,9 @@ namespace PulseGlassWidget
 
         private void BtnWindowMode_Click(object sender, RoutedEventArgs e)
         {
+            SizeToContent = SizeToContent.Manual;
+            MinWidth = 0;
+            MaxWidth = double.PositiveInfinity;
             _isWindowMode = !_isWindowMode;
             _isGameMode = false;
             MiniPanel.Visibility = Visibility.Collapsed;
@@ -639,6 +659,9 @@ namespace PulseGlassWidget
 
         private void BtnToggleMode_Click(object sender, RoutedEventArgs e)
         {
+            SizeToContent = _isWindowMode ? SizeToContent.Manual : SizeToContent.WidthAndHeight;
+            MinWidth = 0;
+            MaxWidth = double.PositiveInfinity;
             _isGameMode = false;
             MiniPanel.Visibility = Visibility.Collapsed;
             BtnGameMode.Content = "Özet ▬";
