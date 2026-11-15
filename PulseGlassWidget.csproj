@@ -45,6 +45,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="LibreHardwareMonitorLib">
+      <HintPath>Libs\LibreHardwareMonitorLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -70,6 +74,7 @@
     <Compile Include="Services\SystemControlService.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\UpdateService.cs" />
+    <Compile Include="Services\EtwFpsMonitor.cs" />
     <Resource Include="Assets\app.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
