@@ -14,6 +14,7 @@
         MinHeight="48"
         ShowInTaskbar="True"
         Topmost="True"
+        WindowStartupLocation="Manual"
         PreviewMouseDown="Window_PreviewMouseDown"
         PreviewMouseMove="Window_PreviewMouseMove"
         PreviewMouseUp="Window_PreviewMouseUp">
@@ -562,7 +563,7 @@
                                         <CheckBox x:Name="ChkSumIGpuPct" Content="iGPU %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
                                         <CheckBox x:Name="ChkSumRamPct" Content="RAM %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
                                         <CheckBox x:Name="ChkSumSsdTemp" Content="SSD °C" IsChecked="False" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
-                                        <CheckBox x:Name="ChkSumFps" Content="FPS (RTSS)" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumFps" Content="FPS (DXGI / RTSS)" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
                                     </UniformGrid>
                                 </StackPanel>
                             </Border>
