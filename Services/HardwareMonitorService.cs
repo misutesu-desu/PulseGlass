@@ -57,6 +57,8 @@ namespace PulseGlassWidget.Services
         private bool _hasStorageTemp;
         private bool _hasGpuAdapterMemWmi;
         private bool _hasGpuEngineWmi;
+        private readonly EtwFpsMonitor _etwFps = new EtwFpsMonitor();
+        private LibreHardwareMonitor.Hardware.Computer _lhmComputer;
 
         public double CpuTempAlertThreshold { get; set; }
         public double GpuTempAlertThreshold { get; set; }
@@ -73,6 +75,18 @@ namespace PulseGlassWidget.Services
 
         public void InitializeStaticInfo()
         {
+            try
+            {
+                _lhmComputer = new LibreHardwareMonitor.Hardware.Computer
+                {
+                    IsCpuEnabled = true,
+                    IsStorageEnabled = true,
+                    IsGpuEnabled = true
+                };
+                _lhmComputer.Open();
+            }
+            catch { _lhmComputer = null; }
+            try { _etwFps.Start(); } catch { }
             LoadCpuStatic();
             LoadRamStatic();
             LoadGpuStatic();
@@ -579,8 +593,8 @@ namespace PulseGlassWidget.Services
                 snap.Processes = PollProcesses(elapsedSec, groupProcesses);
             }
 
-            // 7. FPS (via RTSS Shared Memory if active)
-            snap.Fps = ReadRtssFps();
+            // 7. FPS (via RTSS Shared Memory or built-in DXGI ETW)
+            snap.Fps = ReadRtssFps() ?? _etwFps.GetCurrentFps();
 
             // 8. Alerts
             if (snap.Cpu.TemperatureC.HasValue && snap.Cpu.TemperatureC.Value >= CpuTempAlertThreshold)
@@ -598,6 +612,37 @@ namespace PulseGlassWidget.Services
         private double? ReadCpuTemperature(out string note)
         {
             note = "";
+            if (_lhmComputer != null)
+            {
+                try
+                {
+                    double? pkgTemp = null;
+                    double? anyTemp = null;
+                    foreach (var hw in _lhmComputer.Hardware)
+                    {
+                        if (hw.HardwareType != LibreHardwareMonitor.Hardware.HardwareType.Cpu) continue;
+                        hw.Update();
+                        foreach (var s in hw.Sensors)
+                        {
+                            if (s.SensorType == LibreHardwareMonitor.Hardware.SensorType.Temperature && s.Value.HasValue)
+                            {
+                                double val = s.Value.Value;
+                                if (val > 10 && val < 125)
+                                {
+                                    if (s.Name.IndexOf("Package", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                        s.Name.IndexOf("Core Average", StringComparison.OrdinalIgnoreCase) >= 0)
+                                        pkgTemp = val;
+                                    else if (s.Name.IndexOf("Distance", StringComparison.OrdinalIgnoreCase) < 0 && !anyTemp.HasValue)
+                                        anyTemp = val;
+                                }
+                            }
+                        }
+                    }
+                    double? lhmCpu = pkgTemp ?? anyTemp;
+                    if (lhmCpu.HasValue) { _cachedCpuTemp = Math.Round(lhmCpu.Value, 0); return _cachedCpuTemp; }
+                }
+                catch { }
+            }
             if (_tickCount > 1 && _tickCount % 3 != 0)
             {
                 if (!_cachedCpuTemp.HasValue && _lhmNamespace == null && !_hasAcpiTemp)
@@ -888,6 +933,26 @@ namespace PulseGlassWidget.Services
 
         private double? ReadDiskTemperature()
         {
+            if (_lhmComputer != null)
+            {
+                try
+                {
+                    foreach (var hw in _lhmComputer.Hardware)
+                    {
+                        if (hw.HardwareType != LibreHardwareMonitor.Hardware.HardwareType.Storage) continue;
+                        hw.Update();
+                        foreach (var s in hw.Sensors)
+                        {
+                            if (s.SensorType == LibreHardwareMonitor.Hardware.SensorType.Temperature && s.Value.HasValue)
+                            {
+                                double val = s.Value.Value;
+                                if (val > 5 && val < 110) return Math.Round(val, 0);
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
             if (_hasStorageTemp)
             {
                 try
@@ -1098,10 +1163,10 @@ namespace PulseGlassWidget.Services
                         long baseOff = arrOffset + (i * arrEntrySize);
                         uint pid = acc.ReadUInt32(baseOff);
                         if (pid == 0) continue;
-                        // dwTime0 (offset 264), dwTime1 (268), dwFrames (272) in RTSS v2 entry
-                        uint t0 = acc.ReadUInt32(baseOff + 264);
-                        uint t1 = acc.ReadUInt32(baseOff + 268);
-                        uint frames = acc.ReadUInt32(baseOff + 272);
+                        // dwFlags (264), dwTime0 (268), dwTime1 (272), dwFrames (276) in RTSS v2 entry
+                        uint t0 = acc.ReadUInt32(baseOff + 268);
+                        uint t1 = acc.ReadUInt32(baseOff + 272);
+                        uint frames = acc.ReadUInt32(baseOff + 276);
                         if (t1 > t0 && frames > 0)
                         {
                             int fps = (int)Math.Round((frames * 1000.0) / (t1 - t0));
@@ -1117,6 +1182,8 @@ namespace PulseGlassWidget.Services
 
         public void Dispose()
         {
+            try { if (_lhmComputer != null) _lhmComputer.Close(); } catch { }
+            try { _etwFps.Dispose(); } catch { }
             if (_cpuTotalCounter != null) _cpuTotalCounter.Dispose();
             if (_cpuPerfCounter != null) _cpuPerfCounter.Dispose();
             if (_diskIdleCounter != null) _diskIdleCounter.Dispose();
