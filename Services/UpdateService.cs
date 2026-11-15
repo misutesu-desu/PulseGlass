@@ -46,7 +46,7 @@ namespace PulseGlassWidget.Services
 
     public class UpdateService
     {
-        public const string CurrentVersion = "1.2.0";
+        public const string CurrentVersion = "1.3.0";
         // GitHub Releases API or custom JSON manifest URL
         public static string AppManifestUrl = "https://api.github.com/repos/yafermys/PulseGlass/releases/latest";
 
