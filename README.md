@@ -1,4 +1,4 @@
-# PulseGlass Hardware Monitor (`v1.1.0`)
+# PulseGlass Hardware Monitor (`v1.2.0`)
 
 A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and system utility built with C# and WPF (.NET Framework).
 
@@ -24,13 +24,12 @@ A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and
 ## ✨ Key Features
 
 - **Three Seamless Display Modes**
-  - **Compact Widget:** Circular gauges for CPU, Discrete GPU, Integrated GPU (iGPU), and RAM, plus SSD/Network telemetry and quick power mode toggles.
+  - **Compact Widget:** Circular gauges for CPU, Discrete GPU, Integrated GPU (iGPU), and RAM, plus SSD/Network telemetry and quick shortcuts.
   - **Summary Strip (`Mini Mode`):** Ultra-compact single-line overlay with **live FPS** (via RivaTuner Statistics Server / `RTSSSharedMemoryV2`) and **customizable metrics** (`CPU %`, `CPU °C`, `GPU %`, `GPU °C`, `iGPU %`, `RAM %`, `SSD °C`, `FPS`) configurable in Settings.
-  - **Detailed Window:** Full tabbed dashboard for Overview, Modes & Fan, Hardware Details, Processes, Settings, and Updates.
+  - **Detailed Window:** Full tabbed dashboard for Overview, Hardware Details, Processes, Settings, and Updates.
 - **Ghost Mode (Click-Through):** Toggle click-through transparency at any time with `Shift + Enter` so the widget stays visible without blocking clicks.
 - **Middle-Click Drag & Desktop Pin:** Drag the widget from anywhere using the middle mouse button, or pin it to the desktop / keep it always on top.
 - **Process Manager:** Search, sort, and group running apps, and right-click any process to open its file location, copy its path, or terminate it immediately.
-- **System Modes & Fan Control:** Switch between Quiet, Balanced, Performance, and Turbo power profiles, customize CPU min/max limits, toggle Turbo Boost, and adjust fan preferences.
 - **Built-in Update Center:**
   - Automatically checks for updates at startup and every **6 hours**, with a manual **Check Now** button in the **Updates** tab.
   - Separates **Important / Recommended Windows Updates** from **Optional Windows Updates** using the native Windows Update Agent (`Microsoft.Update.Session`).
