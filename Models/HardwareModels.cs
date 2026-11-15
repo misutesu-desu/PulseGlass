@@ -140,7 +140,7 @@ namespace PulseGlassWidget.Models
         public double UsagePercent { get { return _usagePercent; } set { SetField(ref _usagePercent, value); } }
 
         public double FreeGB { get { return Math.Max(0, TotalGB - UsedGB); } }
-        public string SummaryText { get { return string.Format("{0:0.1} / {1:0.1} GB", UsedGB, TotalGB); } }
+        public string SummaryText { get { return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0} / {1:0.0} GB", UsedGB, TotalGB); } }
     }
 
     public class DiskDetailInfo
@@ -230,7 +230,7 @@ namespace PulseGlassWidget.Models
 
         public string DisplayName { get { return InstanceCount > 1 ? string.Format("{0} ({1})", Name, InstanceCount) : Name; } }
         public string CpuText { get { return string.Format("{0:0.0}%", CpuPercent); } }
-        public string RamText { get { return RamMB >= 1024 ? string.Format("{0:0.2} GB", RamMB / 1024.0) : string.Format("{0:0} MB", RamMB); } }
+        public string RamText { get { return RamMB >= 1024 ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.00} GB", RamMB / 1024.0) : string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0} MB", RamMB); } }
         public string DiskText { get { return string.Format("{0:0.0} MB/s", DiskMBps); } }
         public string GpuText { get { return GpuPercent.HasValue ? string.Format("{0:0.0}%", GpuPercent.Value) : "—"; } }
     }
