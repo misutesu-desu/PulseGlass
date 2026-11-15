@@ -25,6 +25,7 @@ namespace PulseGlassWidget
     public partial class MainWindow : Window
     {
         private const int HOTKEY_GHOST_ID = 9001;
+        private const int HOTKEY_SUMMARY_ID = 9002;
 
         private readonly HardwareMonitorService _monitor = new HardwareMonitorService();
         private readonly SystemControlService _sysControl = new SystemControlService();
@@ -185,6 +186,7 @@ namespace PulseGlassWidget
             var hwnd = new WindowInteropHelper(this).Handle;
             NativeMethods.TryEnableWin11RoundedCorners(hwnd);
             NativeMethods.RegisterHotKey(hwnd, HOTKEY_GHOST_ID, NativeMethods.MOD_SHIFT, NativeMethods.VK_RETURN);
+            NativeMethods.RegisterHotKey(hwnd, HOTKEY_SUMMARY_ID, NativeMethods.MOD_CONTROL, NativeMethods.VK_RETURN);
             var source = HwndSource.FromHwnd(hwnd);
             if (source != null) source.AddHook(WndProc);
 
@@ -205,10 +207,19 @@ namespace PulseGlassWidget
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (msg == NativeMethods.WM_HOTKEY && wParam.ToInt32() == HOTKEY_GHOST_ID)
+            if (msg == NativeMethods.WM_HOTKEY)
             {
-                ToggleGhostMode();
-                handled = true;
+                int id = wParam.ToInt32();
+                if (id == HOTKEY_GHOST_ID)
+                {
+                    ToggleGhostMode();
+                    handled = true;
+                }
+                else if (id == HOTKEY_SUMMARY_ID)
+                {
+                    BtnGameMode_Click(null, null);
+                    handled = true;
+                }
             }
             return IntPtr.Zero;
         }
@@ -228,6 +239,7 @@ namespace PulseGlassWidget
             {
                 var hwnd = new WindowInteropHelper(this).Handle;
                 NativeMethods.UnregisterHotKey(hwnd, HOTKEY_GHOST_ID);
+                NativeMethods.UnregisterHotKey(hwnd, HOTKEY_SUMMARY_ID);
             }
             catch { }
             _timer.Stop();
@@ -588,6 +600,24 @@ namespace PulseGlassWidget
             BtnDesktopPin.Content = _isDesktopPinned ? "🖥 ✓" : "🖥";
         }
 
+        private void MiniPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!_isGhostMode && e.ChangedButton == MouseButton.Left)
+            {
+                try { DragMove(); } catch { }
+            }
+        }
+
+        private void RestoreGlassChrome()
+        {
+            HeaderRow.Height = new GridLength(26);
+            HeaderBar.Visibility = Visibility.Visible;
+            RootContainer.Margin = new Thickness(5);
+            MainContentGrid.Margin = new Thickness(12, 8, 12, 11);
+            GlassFrame.BorderThickness = new Thickness(1.2);
+            ApplyCustomTheme(_primaryColor, _secondaryColor, _bgBaseColor);
+        }
+
         private void BtnGameMode_Click(object sender, RoutedEventArgs e)
         {
             _isGameMode = !_isGameMode;
@@ -595,17 +625,25 @@ namespace PulseGlassWidget
             {
                 if (_isWindowMode) BtnWindowMode_Click(sender, e);
                 _isDetailed = false;
+                HeaderRow.Height = new GridLength(0);
+                HeaderBar.Visibility = Visibility.Collapsed;
+                RootContainer.Margin = new Thickness(0);
+                MainContentGrid.Margin = new Thickness(4, 2, 4, 2);
+                GlassFrame.BorderThickness = new Thickness(0);
+                GlassFrame.Background = Brushes.Transparent;
+
                 MiniPanel.Visibility = Visibility.Visible;
                 CompactPanel.Visibility = Visibility.Collapsed;
                 DetailedPanel.Visibility = Visibility.Collapsed;
-                MinWidth = 360;
-                MaxWidth = 640;
+                MinWidth = 0;
+                MaxWidth = 1000;
                 SizeToContent = SizeToContent.WidthAndHeight;
                 BtnGameMode.Content = _isEnglish ? "Summary ✓" : "Özet ✓";
                 BtnToggleMode.Content = _isEnglish ? "Detail ⤢" : "Detay ⤢";
             }
             else
             {
+                RestoreGlassChrome();
                 SizeToContent = SizeToContent.WidthAndHeight;
                 MinWidth = 0;
                 MaxWidth = double.PositiveInfinity;
@@ -622,8 +660,9 @@ namespace PulseGlassWidget
             MaxWidth = double.PositiveInfinity;
             _isWindowMode = !_isWindowMode;
             _isGameMode = false;
+            RestoreGlassChrome();
             MiniPanel.Visibility = Visibility.Collapsed;
-            BtnGameMode.Content = "Özet ▬";
+            BtnGameMode.Content = _isEnglish ? "Summary ▬" : "Özet ▬";
 
             if (_isWindowMode)
             {
