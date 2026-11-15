@@ -174,9 +174,9 @@
                 </LinearGradientBrush>
             </Border.Background>
 
-            <Grid Margin="12,8,12,11">
+            <Grid x:Name="MainContentGrid" Margin="12,8,12,11">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="26"/>
+                    <RowDefinition x:Name="HeaderRow" Height="26"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -202,7 +202,7 @@
                         <Button x:Name="BtnGhost" Content="👻" Style="{StaticResource HeaderIconBtn}" Click="BtnGhost_Click" ToolTip="Geçirgen Mod / Arkaya Tıkla (Shift+Enter)"/>
                         <Button x:Name="BtnTopmost" Content="📌 ✓" Style="{StaticResource HeaderIconBtn}" Click="BtnTopmost_Click" ToolTip="Her zaman üstte"/>
                         <Button x:Name="BtnDesktopPin" Content="🖥" Style="{StaticResource HeaderIconBtn}" Click="BtnDesktopPin_Click" ToolTip="Masaüstüne sabitle"/>
-                        <Button x:Name="BtnGameMode" Content="Özet ▬" Style="{StaticResource HeaderIconBtn}" Click="BtnGameMode_Click" ToolTip="Özet / Mini Şerit Modu"/>
+                        <Button x:Name="BtnGameMode" Content="Özet ▬" Style="{StaticResource HeaderIconBtn}" Click="BtnGameMode_Click" ToolTip="Özet / Mini Şerit Modu (Ctrl+Enter)"/>
                         <Button x:Name="BtnWindowMode" Content="Pencere ▢" Style="{StaticResource HeaderIconBtn}" Click="BtnWindowMode_Click" ToolTip="Tam pencere / Widget modu"/>
                         <Button x:Name="BtnToggleMode" Content="Detay ⤢" Style="{StaticResource HeaderIconBtn}" Click="BtnToggleMode_Click" ToolTip="Kompakt / Detaylı görünüm"/>
                         <Button x:Name="BtnMaximize" Content="◰" Style="{StaticResource HeaderIconBtn}" Click="BtnMaximize_Click" Visibility="Collapsed" ToolTip="Büyüt / Geri yükle"/>
@@ -211,10 +211,14 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- 0. GAME / MINI STRIP MODE (Ultra compact for gaming) -->
-                <Border x:Name="MiniPanel" Grid.Row="1" Visibility="Collapsed" Background="#16FFFFFF" CornerRadius="10" Padding="10,6" BorderBrush="#33FFB085" BorderThickness="1">
-                    <TextBlock x:Name="MiniOverlayText" Text="CPU 0% (--°C)  •  GPU 0% (--°C)  •  RAM 0%  •  SSD --°C  •  FPS: --"
-                               Foreground="#FFE4D6" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                <!-- 0. GAME / MINI STRIP MODE (Only selected metrics, nothing else) -->
+                <Border x:Name="MiniPanel" Grid.Row="1" Visibility="Collapsed" Background="Transparent" Padding="4,2" MouseLeftButtonDown="MiniPanel_MouseLeftButtonDown">
+                    <TextBlock x:Name="MiniOverlayText" Text="CPU 0% (--°C)  •  GPU 0% (--°C)  •  RAM 0%  •  FPS: --"
+                               Foreground="#FFE4D6" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="NoWrap">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="1" BlurRadius="4" Color="Black" Opacity="0.95"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
                 </Border>
 
                 <!-- 1. COMPACT WIDGET MODE -->
