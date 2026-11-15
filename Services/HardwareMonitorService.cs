@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
 using PulseGlassWidget.Models;
 
 namespace PulseGlassWidget.Services
@@ -933,6 +935,9 @@ namespace PulseGlassWidget.Services
 
         private double? ReadDiskTemperature()
         {
+            double? directNvme = ReadNvmeDeviceProtocolTemp();
+            if (directNvme.HasValue) return directNvme;
+
             if (_lhmComputer != null)
             {
                 try
@@ -1177,6 +1182,56 @@ namespace PulseGlassWidget.Services
                 }
             }
             catch { }
+            return null;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess, uint dwShareMode,
+            IntPtr lpSecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode,
+            byte[] lpInBuffer, int nInBufferSize, byte[] lpOutBuffer, int nOutBufferSize,
+            out int lpBytesReturned, IntPtr lpOverlapped);
+
+        private static double? ReadNvmeDeviceProtocolTemp()
+        {
+            const uint GENERIC_READ = 0x80000000;
+            const uint GENERIC_WRITE = 0x40000000;
+            const uint FILE_SHARE_READ = 1;
+            const uint FILE_SHARE_WRITE = 2;
+            const uint OPEN_EXISTING = 3;
+            const uint IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400;
+
+            for (int idx = 0; idx < 4; idx++)
+            {
+                string path = @"\\.\PhysicalDrive" + idx;
+                try
+                {
+                    using (var h = CreateFile(path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero))
+                    {
+                        if (h.IsInvalid) continue;
+                        byte[] buf = new byte[48 + 512];
+                        BitConverter.GetBytes(50u).CopyTo(buf, 0);          // StorageDeviceProtocolSpecificProperty
+                        BitConverter.GetBytes(0u).CopyTo(buf, 4);           // PropertyStandardQuery
+                        BitConverter.GetBytes(3u).CopyTo(buf, 8);           // ProtocolType = Nvme
+                        BitConverter.GetBytes(2u).CopyTo(buf, 12);          // DataType = NVMeDataTypeLogPage
+                        BitConverter.GetBytes(2u).CopyTo(buf, 16);          // LogPage 0x02 (SMART/Health)
+                        BitConverter.GetBytes(0xFFFFFFFFu).CopyTo(buf, 20); // NSID = all
+                        BitConverter.GetBytes(40u).CopyTo(buf, 24);         // ProtocolDataOffset
+                        BitConverter.GetBytes(512u).CopyTo(buf, 28);        // ProtocolDataLength
+
+                        int ret;
+                        if (DeviceIoControl(h, IOCTL_STORAGE_QUERY_PROPERTY, buf, buf.Length, buf, buf.Length, out ret, IntPtr.Zero) && ret >= 52)
+                        {
+                            int kelvin = buf[49] | (buf[50] << 8);
+                            double tempC = kelvin - 273.15;
+                            if (tempC > 5 && tempC < 110) return Math.Round(tempC, 0);
+                        }
+                    }
+                }
+                catch { }
+            }
             return null;
         }
 
