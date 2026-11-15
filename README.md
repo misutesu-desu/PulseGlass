@@ -4,6 +4,23 @@ A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and
 
 ---
 
+## 📸 Screenshots
+
+### Compact Widget & Summary Strip (`Mini Mode`)
+| Compact Widget | Summary Strip (with Live FPS) |
+| :---: | :---: |
+| ![Compact Widget](Assets/screenshots/compact-widget.png) | ![Summary Strip](Assets/screenshots/summary-strip.png) |
+
+### Detailed Dashboard
+| Overview | Update Center (Important & Optional) |
+| :---: | :---: |
+| ![Detailed Overview](Assets/screenshots/detailed-overview.png) | ![Update Center](Assets/screenshots/updates.png) |
+
+### Settings, Themes & Customization
+![Settings](Assets/screenshots/settings.png)
+
+---
+
 ## ✨ Key Features
 
 - **Three Seamless Display Modes**
