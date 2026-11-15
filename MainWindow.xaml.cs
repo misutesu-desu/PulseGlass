@@ -37,7 +37,6 @@ namespace PulseGlassWidget
         private bool _isGhostMode;
         private bool _isPolling;
         private bool _uiReady;
-        private bool _loadingModeEditor;
         private bool _isMiddleDragging;
         private Point _dragStartScreen;
         private Point _windowStartPos;
@@ -62,8 +61,6 @@ namespace PulseGlassWidget
             LoadSavedSettings();
             _uiReady = true;
             ApplyActiveOpacity();
-            LoadModeIntoEditor(_sysControl.Profiles.FirstOrDefault(p => p.Id == _sysControl.ActiveModeId));
-            if (_sysControl.IsAdmin) BtnElevateAdmin.Visibility = Visibility.Collapsed;
             InitTrayIcon();
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
@@ -322,7 +319,7 @@ namespace PulseGlassWidget
                 CompactIGpuGauge.Value = snap.IntegratedGpu.IsAvailable ? snap.IntegratedGpu.UsagePercent : 0;
                 CompactIGpuGauge.SubText = snap.IntegratedGpu.IsAvailable ? snap.IntegratedGpu.TemperatureText : "N/A";
                 CompactIGpuSub.Text = snap.IntegratedGpu.IsAvailable
-                    ? string.Format("{0:0.1} GB", snap.IntegratedGpu.UsedVramGB)
+                    ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0} GB", snap.IntegratedGpu.UsedVramGB)
                     : "Yok";
 
                 CompactDiskText.Text = string.Format("SSD: %{0:0} Aktif  •  {1}  •  {2}",
@@ -376,12 +373,12 @@ namespace PulseGlassWidget
                     ? string.Format("{0:0} GB", Math.Round(snap.Ram.UsedGB))
                     : string.Format("{0:0} MB", snap.Ram.UsedGB * 1024);
                 double detTotalRam = snap.Ram.InstalledGB > 0 ? snap.Ram.InstalledGB : snap.Ram.TotalGB;
-                DetRamSub.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.1} / {1:0} GB", snap.Ram.UsedGB, detTotalRam);
+                DetRamSub.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0} / {1:0} GB", snap.Ram.UsedGB, detTotalRam);
 
                 DetIGpuGauge.Value = snap.IntegratedGpu.IsAvailable ? snap.IntegratedGpu.UsagePercent : 0;
                 DetIGpuGauge.SubText = snap.IntegratedGpu.IsAvailable ? snap.IntegratedGpu.TemperatureText : "N/A";
                 DetIGpuSub.Text = snap.IntegratedGpu.IsAvailable
-                    ? string.Format("Paylaşımlı: {0:0.1} GB", snap.IntegratedGpu.UsedVramGB)
+                    ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "Paylaşımlı: {0:0.0} GB", snap.IntegratedGpu.UsedVramGB)
                     : "Algılanmadı";
 
                 OverviewStorageText.Text = string.Format("Depolama (SSD): %{0:0} Aktif  |  {1}  |  Sıcaklık: {2}",
@@ -420,7 +417,7 @@ namespace PulseGlassWidget
 
                 HwIGpuName.Text = snap.IntegratedGpu.Name;
                 HwIGpuSpecs.Text = snap.IntegratedGpu.IsAvailable
-                    ? string.Format("Kullanım: %{0:0.0}   |   Paylaşımlı Bellek: {1:0.2} GB   |   Sıcaklık: {2}   |   Sürücü: {3}",
+                    ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "Kullanım: %{0:0.0}   |   Paylaşımlı Bellek: {1:0.00} GB   |   Sıcaklık: {2}   |   Sürücü: {3}",
                         snap.IntegratedGpu.UsagePercent, snap.IntegratedGpu.UsedVramGB, snap.IntegratedGpu.TemperatureText,
                         string.IsNullOrEmpty(snap.IntegratedGpu.DriverVersion) ? "N/A" : snap.IntegratedGpu.DriverVersion)
                     : "Sistemde yalnızca birincil ekran kartı algılandı veya dahili GPU BIOS üzerinden devre dışı.";
@@ -428,7 +425,7 @@ namespace PulseGlassWidget
                 string ramSpecInfo = snap.Ram.SpeedMHz > 0
                     ? string.Format("{0}, {1} MHz", snap.Ram.MemoryType, snap.Ram.SpeedMHz)
                     : "Tip/Hız için Yönetici izni gerekebilir";
-                HwRamSummary.Text = string.Format("{0:0.0} GB Takılı ({1:0.1} GB Kullanılabilir • {2}) — Kullanılan: {3:0.1} GB | Boş: {4:0.1} GB (%{5:0})",
+                HwRamSummary.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0} GB Takılı ({1:0.0} GB Kullanılabilir • {2}) — Kullanılan: {3:0.0} GB | Boş: {4:0.0} GB (%{5:0})",
                     snap.Ram.InstalledGB, snap.Ram.TotalGB, ramSpecInfo, snap.Ram.UsedGB, snap.Ram.FreeGB, snap.Ram.UsagePercent);
                 HwRamSlots.Text = snap.Ram.Slots.Count > 0
                     ? string.Join("\n", snap.Ram.Slots.Select(s => string.Format("• {0}: {1:0.0} GB {2} @ {3} MHz ({4})", s.Locator, s.CapacityGB, s.MemoryType, s.SpeedMHz, s.Manufacturer)))
@@ -450,7 +447,7 @@ namespace PulseGlassWidget
         {
             if (_lastSnapshot == null) return;
             var all = _lastSnapshot.Processes;
-            ProcSummaryText.Text = string.Format("Aktif Öğe: {0}   |   Sistem RAM: {1:0.1} / {2:0.1} GB (%{3:0})",
+            ProcSummaryText.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Aktif Öğe: {0}   |   Sistem RAM: {1:0.0} / {2:0.0} GB (%{3:0})",
                 all.Count, _lastSnapshot.Ram.UsedGB, _lastSnapshot.Ram.TotalGB, _lastSnapshot.Ram.UsagePercent);
 
             IEnumerable<ProcessUsageItem> list = all;
@@ -645,12 +642,6 @@ namespace PulseGlassWidget
             ToggleMode(!_isDetailed);
         }
 
-        private void ShortcutModes_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleMode(true);
-            TabModes.IsChecked = true;
-        }
-
         private void ShortcutProcs_Click(object sender, RoutedEventArgs e)
         {
             ToggleMode(true);
@@ -668,7 +659,7 @@ namespace PulseGlassWidget
             _isDetailed = detailed;
             CompactPanel.Visibility = detailed ? Visibility.Collapsed : Visibility.Visible;
             DetailedPanel.Visibility = detailed ? Visibility.Visible : Visibility.Collapsed;
-            BtnToggleMode.Content = detailed ? "Küçült ⤡" : "Detay ⤢";
+            BtnToggleMode.Content = detailed ? (_isEnglish ? "Compact ⤡" : "Küçült ⤡") : (_isEnglish ? "Detail ⤢" : "Detay ⤢");
             if (!_isWindowMode)
             {
                 Width = detailed ? 770 : 440;
@@ -676,107 +667,6 @@ namespace PulseGlassWidget
                 if (Left + Width > area.Right) Left = Math.Max(area.Left, area.Right - Width - 12);
             }
             if (_lastSnapshot != null) UpdateUi(_lastSnapshot);
-        }
-
-        private void QuickMode_Click(object sender, RoutedEventArgs e)
-        {
-            var rb = sender as RadioButton;
-            if (rb != null && rb.Tag != null) ApplySystemModeById(rb.Tag.ToString());
-        }
-
-        private void ModeCard_Click(object sender, RoutedEventArgs e)
-        {
-            var rb = sender as RadioButton;
-            if (rb != null && rb.Tag != null) ApplySystemModeById(rb.Tag.ToString());
-        }
-
-        private async void ApplySystemModeById(string id)
-        {
-            var profile = _sysControl.Profiles.FirstOrDefault(p => p.Id == id);
-            if (profile == null) return;
-            LoadModeIntoEditor(profile);
-            _sysControl.SuppressOthers = (ChkSuppressOthers.IsChecked == true);
-            FanHardwareStatus.Text = "Durum: Mod uygulanıyor...";
-            SyncModeRadioButtons(id);
-            string msg = await Task.Run(() => _sysControl.ApplyMode(profile));
-            FanHardwareStatus.Text = "Durum: " + msg;
-        }
-
-        private void SyncModeRadioButtons(string id)
-        {
-            QuickModeQuiet.IsChecked = id == "Quiet";
-            QuickModeBalanced.IsChecked = id == "Balanced";
-            QuickModePerf.IsChecked = id == "Performance";
-            QuickModeTurbo.IsChecked = id == "Turbo";
-
-            ModeCardQuiet.IsChecked = id == "Quiet";
-            ModeCardBalanced.IsChecked = id == "Balanced";
-            ModeCardPerf.IsChecked = id == "Performance";
-            ModeCardTurbo.IsChecked = id == "Turbo";
-        }
-
-        private void LoadModeIntoEditor(SystemModeProfile profile)
-        {
-            if (profile == null) return;
-            _loadingModeEditor = true;
-            ModeDescText.Text = profile.Description;
-            SldModeCpuMin.Value = profile.CpuMinPercent;
-            SldModeCpuMax.Value = profile.CpuMaxPercent;
-            ChkModeActiveCool.IsChecked = profile.ActiveCooling;
-            ChkModeBoost.IsChecked = profile.BoostEnabled;
-            ChkAutoFan.IsChecked = profile.AutoFan;
-            SldCpuFan.Value = profile.CpuFanPercent;
-            SldGpuFan.Value = profile.GpuFanPercent;
-            SldCpuFan.IsEnabled = !profile.AutoFan;
-            SldGpuFan.IsEnabled = !profile.AutoFan;
-            LblModeCpuMin.Text = string.Format("Min CPU Gücü: %{0}", profile.CpuMinPercent);
-            LblModeCpuMax.Text = string.Format("Maks CPU Gücü: %{0}", profile.CpuMaxPercent);
-            LblCpuFan.Text = string.Format("CPU Fan Gücü: %{0}", profile.CpuFanPercent);
-            LblGpuFan.Text = string.Format("GPU Fan Gücü: %{0}", profile.GpuFanPercent);
-            _loadingModeEditor = false;
-        }
-
-        private void ModeEditor_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!_uiReady || _loadingModeEditor || LblModeCpuMin == null) return;
-            LblModeCpuMin.Text = string.Format("Min CPU Gücü: %{0:0}", SldModeCpuMin.Value);
-            LblModeCpuMax.Text = string.Format("Maks CPU Gücü: %{0:0}", SldModeCpuMax.Value);
-            LblCpuFan.Text = string.Format("CPU Fan Gücü: %{0:0}", SldCpuFan.Value);
-            LblGpuFan.Text = string.Format("GPU Fan Gücü: %{0:0}", SldGpuFan.Value);
-            FanHardwareStatus.Text = "Durum: Değişiklikler hazır — uygulamak için aşağıdaki butona tıklayın.";
-        }
-
-        private void ModeCheck_Changed(object sender, RoutedEventArgs e)
-        {
-            if (!_uiReady || _loadingModeEditor || FanHardwareStatus == null) return;
-            FanHardwareStatus.Text = "Durum: Boost/Soğutma tercihi güncellendi — uygulamak için aşağıdaki butona tıklayın.";
-        }
-
-        private void ChkAutoFan_Changed(object sender, RoutedEventArgs e)
-        {
-            if (!_uiReady || SldCpuFan == null) return;
-            bool auto = ChkAutoFan.IsChecked == true;
-            SldCpuFan.IsEnabled = !auto;
-            SldGpuFan.IsEnabled = !auto;
-            if (!_loadingModeEditor && FanHardwareStatus != null)
-                FanHardwareStatus.Text = auto ? "Durum: Otomatik fan seçildi — uygulamak için butona tıklayın." : "Durum: Manuel fan gücü seçildi — uygulamak için butona tıklayın.";
-        }
-
-        private async void BtnApplyMode_Click(object sender, RoutedEventArgs e)
-        {
-            var profile = _sysControl.Profiles.FirstOrDefault(p => p.Id == _sysControl.ActiveModeId);
-            if (profile == null) return;
-            profile.CpuMinPercent = (int)SldModeCpuMin.Value;
-            profile.CpuMaxPercent = (int)Math.Max(SldModeCpuMin.Value, SldModeCpuMax.Value);
-            profile.ActiveCooling = ChkModeActiveCool.IsChecked == true;
-            profile.BoostEnabled = ChkModeBoost.IsChecked == true;
-            profile.AutoFan = ChkAutoFan.IsChecked == true;
-            profile.CpuFanPercent = (int)SldCpuFan.Value;
-            profile.GpuFanPercent = (int)SldGpuFan.Value;
-            _sysControl.SuppressOthers = (ChkSuppressOthers.IsChecked == true);
-            FanHardwareStatus.Text = "Durum: Ayarlar uygulanıyor...";
-            string msg = await Task.Run(() => _sysControl.ApplyMode(profile));
-            FanHardwareStatus.Text = "Durum: " + msg;
         }
 
         private void ProcCtxOpenLocation_Click(object sender, RoutedEventArgs e)
@@ -900,7 +790,6 @@ namespace PulseGlassWidget
         {
             if (!_uiReady || ViewOverview == null) return;
             ViewOverview.Visibility = TabOverview.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-            ViewModes.Visibility = TabModes.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             ViewHardware.Visibility = TabHardware.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             ViewProcesses.Visibility = TabProcesses.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             ViewSettings.Visibility = TabSettings.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
@@ -1217,15 +1106,11 @@ namespace PulseGlassWidget
 
             LblCompactGpu.Text = en ? "Discrete GPU" : "Harici GPU";
             LblCompactIGpu.Text = en ? "Integrated GPU" : "Dahili GPU";
-            QuickModeQuiet.Content = en ? "Quiet" : "Sessiz";
-            QuickModeBalanced.Content = en ? "Balanced" : "Dengeli";
-            BtnShortcutModes.Content = en ? "⚙ Modes & Fan" : "⚙ Mod & Fan";
             BtnShortcutProcs.Content = en ? "📊 Apps" : "📊 Uygulamalar";
             BtnShortcutHw.Content = en ? "🖥 Hardware" : "🖥 Donanım";
 
             // Tabs
             TabOverview.Content = en ? "Overview" : "Genel Bakış";
-            TabModes.Content = en ? "Modes & Fan" : "Modlar & Fan";
             TabHardware.Content = en ? "Hardware Details" : "Donanım Detayları";
             TabProcesses.Content = en ? "Processes" : "Uygulamalar";
             TabSettings.Content = en ? "Settings" : "Ayarlar";
@@ -1236,18 +1121,6 @@ namespace PulseGlassWidget
             LblDetGpu.Text = en ? "Discrete GPU" : "Harici GPU";
             LblDetIGpu.Text = en ? "Integrated GPU (iGPU)" : "Dahili GPU (iGPU)";
             LblDetRam.Text = en ? "Memory (RAM)" : "Bellek (RAM)";
-
-            // Modes
-            LblModesHeader.Text = en ? "SYSTEM POWER MODES (NITRO MODES)" : "GENEL SİSTEM MODLARI (NITRO MODLARI)";
-            BtnElevateAdmin.Content = en ? "🛡 Run as Administrator" : "🛡 Yönetici Olarak Başlat";
-            ModeCardQuiet.Content = en ? "Quiet" : "Sessiz";
-            ModeCardBalanced.Content = en ? "Balanced" : "Dengeli";
-            ModeCardPerf.Content = en ? "Performance" : "Performans";
-            ChkModeActiveCool.Content = en ? "Active Cooling (Fan Priority)" : "Aktif Soğutma (Fan Öncelikli)";
-            ChkSuppressOthers.Content = en ? "Suppress Other Power/Fan Apps" : "Diğer Güç/Fan Uygulamalarını Bastır";
-            LblFanHeader.Text = en ? "FAN SPEED CONTROL" : "FAN GÜCÜ KONTROLÜ";
-            ChkAutoFan.Content = en ? "Automatic Fan Control" : "Otomatik Fan Kontrolü";
-            BtnApplyMode.Content = en ? "Apply Selected Mode & Fan Settings" : "Seçili Modu ve Fan Ayarlarını Uygula";
 
             // Hardware
             LblHwCpuHeader.Text = en ? "PROCESSOR (CPU)" : "İŞLEMCİ (CPU)";
