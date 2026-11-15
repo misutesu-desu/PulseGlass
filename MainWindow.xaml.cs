@@ -54,6 +54,7 @@ namespace PulseGlassWidget
         private bool _isCheckingUpdates;
         private bool _isEnglish;
         private bool _hasPendingUpdates;
+        private bool _skipSaveOnClose;
 
         public MainWindow()
         {
@@ -145,19 +146,6 @@ namespace PulseGlassWidget
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!_sysControl.IsAdmin && !Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--no-elevate", StringComparison.OrdinalIgnoreCase)))
-            {
-                try
-                {
-                    var exe = Process.GetCurrentProcess().MainModule.FileName;
-                    var psi = new ProcessStartInfo(exe, "--no-elevate") { UseShellExecute = true, Verb = "runas" };
-                    Process.Start(psi);
-                    Close();
-                    return;
-                }
-                catch { }
-            }
-
             var area = SystemParameters.WorkArea;
             var saved = SettingsService.Load();
             if (saved.Left.HasValue && saved.Top.HasValue &&
@@ -171,8 +159,27 @@ namespace PulseGlassWidget
             }
             else
             {
-                Left = area.Right - 460;
-                Top = area.Top + 18;
+                double w = ActualWidth > 0 ? ActualWidth : Width;
+                Left = area.Right - w - 16;
+                Top = area.Top + 16;
+            }
+
+            if (!_sysControl.IsAdmin && !Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--no-elevate", StringComparison.OrdinalIgnoreCase)))
+            {
+                try
+                {
+                    _skipSaveOnClose = true;
+                    App.ReleaseSingleInstanceMutex();
+                    var exe = Process.GetCurrentProcess().MainModule.FileName;
+                    var psi = new ProcessStartInfo(exe, "--no-elevate") { UseShellExecute = true, Verb = "runas" };
+                    Process.Start(psi);
+                    Close();
+                    return;
+                }
+                catch
+                {
+                    _skipSaveOnClose = false;
+                }
             }
 
             var hwnd = new WindowInteropHelper(this).Handle;
@@ -208,7 +215,10 @@ namespace PulseGlassWidget
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            SaveCurrentSettings();
+            if (!_skipSaveOnClose)
+            {
+                SaveCurrentSettings();
+            }
             if (_trayIcon != null)
             {
                 _trayIcon.Visible = false;
