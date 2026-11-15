@@ -46,7 +46,7 @@ namespace PulseGlassWidget.Services
 
     public class UpdateService
     {
-        public const string CurrentVersion = "1.1.0";
+        public const string CurrentVersion = "1.2.0";
         // GitHub Releases API or custom JSON manifest URL
         public static string AppManifestUrl = "https://api.github.com/repos/yafermys/PulseGlass/releases/latest";
 
@@ -98,7 +98,7 @@ namespace PulseGlassWidget.Services
                         Index = i,
                         UpdateId = upd.Identity != null ? (string)upd.Identity.UpdateID : i.ToString(),
                         Title = (string)upd.Title,
-                        SizeText = maxMb > 0 ? string.Format("{0:0.1} MB", maxMb) : (isEn ? "Size: Variable" : "Boyut: Değişken"),
+                        SizeText = maxMb > 0 ? string.Format("{0:0.0} MB", maxMb) : (isEn ? "Size: Variable" : "Boyut: Değişken"),
                         RebootRequired = reboot,
                         RebootLabel = isEn ? "Restart May Be Required" : "Yeniden Başlatma Gerekebilir",
                         IsOptional = isOptional,
