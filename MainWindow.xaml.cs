@@ -615,7 +615,8 @@ namespace PulseGlassWidget
             RootContainer.Margin = new Thickness(5);
             MainContentGrid.Margin = new Thickness(12, 8, 12, 11);
             GlassFrame.BorderThickness = new Thickness(1.2);
-            ApplyCustomTheme(_primaryColor, _secondaryColor, _bgBaseColor);
+            if (GlassBgBrush != null) GlassFrame.Background = GlassBgBrush;
+            ApplyActiveOpacity();
         }
 
         private void BtnGameMode_Click(object sender, RoutedEventArgs e)
@@ -712,8 +713,9 @@ namespace PulseGlassWidget
             MinWidth = 0;
             MaxWidth = double.PositiveInfinity;
             _isGameMode = false;
+            RestoreGlassChrome();
             MiniPanel.Visibility = Visibility.Collapsed;
-            BtnGameMode.Content = "Özet ▬";
+            BtnGameMode.Content = _isEnglish ? "Summary ▬" : "Özet ▬";
             ToggleMode(!_isDetailed);
         }
 
@@ -890,7 +892,7 @@ namespace PulseGlassWidget
             if (!_uiReady || LblWidgetOpacityVal == null) return;
             _widgetOpacity = e.NewValue;
             LblWidgetOpacityVal.Text = string.Format("{0:0}%", _widgetOpacity * 100);
-            if (!_isWindowMode) ApplyActiveOpacity();
+            if (!_isWindowMode && !_isGameMode) ApplyActiveOpacity();
         }
 
         private void SldWindowOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -898,12 +900,21 @@ namespace PulseGlassWidget
             if (!_uiReady || LblWindowOpacityVal == null) return;
             _windowOpacity = e.NewValue;
             LblWindowOpacityVal.Text = string.Format("{0:0}%", _windowOpacity * 100);
-            if (_isWindowMode) ApplyActiveOpacity();
+            if (_isWindowMode && !_isGameMode) ApplyActiveOpacity();
         }
 
         private void ApplyActiveOpacity()
         {
-            if (BgStop1 == null || BgStop2 == null) return;
+            if (GlassFrame == null || BgStop1 == null || BgStop2 == null) return;
+            if (_isGameMode)
+            {
+                GlassFrame.Background = Brushes.Transparent;
+                return;
+            }
+            if (GlassBgBrush != null && GlassFrame.Background != GlassBgBrush)
+            {
+                GlassFrame.Background = GlassBgBrush;
+            }
             double op = _isWindowMode ? _windowOpacity : _widgetOpacity;
             byte alpha = (byte)(op * 255);
             BgStop1.Color = Color.FromArgb(alpha, _bgBaseColor.R, _bgBaseColor.G, _bgBaseColor.B);
