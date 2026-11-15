@@ -601,7 +601,33 @@ namespace PulseGlassWidget.Services
             if (_tickCount > 1 && _tickCount % 3 != 0)
             {
                 if (!_cachedCpuTemp.HasValue && _lhmNamespace == null && !_hasAcpiTemp)
-                    note = "Sıcaklık sensörü için Yönetici izni veya LibreHardwareMonitor gerekebilir.";
+                    try
+            {
+                using (var searcher = new ManagementObjectSearcher(@"root\cimv2", "SELECT HighPrecisionTemperature, Temperature FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation"))
+                {
+                    double maxTz = -1;
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        double celsius = -1;
+                        if (obj["HighPrecisionTemperature"] != null)
+                        {
+                            double hp = Convert.ToDouble(obj["HighPrecisionTemperature"]);
+                            if (hp > 2000) celsius = (hp / 10.0) - 273.15;
+                        }
+                        if (celsius <= 0 && obj["Temperature"] != null)
+                        {
+                            double k = Convert.ToDouble(obj["Temperature"]);
+                            if (k > 200) celsius = k - 273.15;
+                        }
+                        if (celsius > 10 && celsius < 125 && celsius > maxTz)
+                            maxTz = celsius;
+                    }
+                    if (maxTz > 0) { _cachedCpuTemp = Math.Round(maxTz, 0); return _cachedCpuTemp; }
+                }
+            }
+            catch { }
+
+            note = "Sıcaklık sensörü için Yönetici izni veya LibreHardwareMonitor gerekebilir.";
                 return _cachedCpuTemp;
             }
 
@@ -646,6 +672,32 @@ namespace PulseGlassWidget.Services
                 }
                 catch { _hasAcpiTemp = false; }
             }
+
+            try
+            {
+                using (var searcher = new ManagementObjectSearcher(@"root\cimv2", "SELECT HighPrecisionTemperature, Temperature FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation"))
+                {
+                    double maxTz = -1;
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        double celsius = -1;
+                        if (obj["HighPrecisionTemperature"] != null)
+                        {
+                            double hp = Convert.ToDouble(obj["HighPrecisionTemperature"]);
+                            if (hp > 2000) celsius = (hp / 10.0) - 273.15;
+                        }
+                        if (celsius <= 0 && obj["Temperature"] != null)
+                        {
+                            double k = Convert.ToDouble(obj["Temperature"]);
+                            if (k > 200) celsius = k - 273.15;
+                        }
+                        if (celsius > 10 && celsius < 125 && celsius > maxTz)
+                            maxTz = celsius;
+                    }
+                    if (maxTz > 0) { _cachedCpuTemp = Math.Round(maxTz, 0); return _cachedCpuTemp; }
+                }
+            }
+            catch { }
 
             note = "Sıcaklık sensörü için Yönetici izni veya LibreHardwareMonitor gerekebilir.";
             return _cachedCpuTemp;
@@ -851,11 +903,49 @@ namespace PulseGlassWidget.Services
                             }
                         }
                     }
+                    using (var diskSearcher = new ManagementObjectSearcher(@"root\Microsoft\Windows\Storage", "SELECT ObjectId FROM MSFT_PhysicalDisk"))
+                    {
+                        foreach (ManagementObject disk in diskSearcher.Get())
+                        {
+                            foreach (ManagementObject rel in disk.GetRelated("MSFT_StorageReliabilityCounter"))
+                            {
+                                if (rel["Temperature"] != null)
+                                {
+                                    double t = Convert.ToDouble(rel["Temperature"]);
+                                    if (t > 0 && t < 110) return Math.Round(t, 0);
+                                }
+                            }
+                        }
+                    }
                 }
                 catch { _hasStorageTemp = false; }
             }
 
-            return QueryHardwareMonitorWmiTemp("Drive");
+            try
+            {
+                using (var searcher = new ManagementObjectSearcher(@"root\WMI", "SELECT VendorSpecific FROM MSStorageDriver_ATAPISmartData"))
+                {
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        byte[] vs = obj["VendorSpecific"] as byte[];
+                        if (vs != null && vs.Length >= 362)
+                        {
+                            for (int i = 2; i + 12 <= vs.Length; i += 12)
+                            {
+                                byte attrId = vs[i];
+                                if (attrId == 194 || attrId == 190)
+                                {
+                                    byte temp = vs[i + 5];
+                                    if (temp > 10 && temp < 105) return (double)temp;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return QueryHardwareMonitorWmiTemp("Drive") ?? QueryHardwareMonitorWmiTemp("SSD") ?? QueryHardwareMonitorWmiTemp("NVMe");
         }
 
         private void PollNetwork(NetworkInfo net)
