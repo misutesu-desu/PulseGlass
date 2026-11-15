@@ -1,4 +1,4 @@
-# PulseGlass Hardware Monitor (`v1.2.0`)
+# PulseGlass Hardware Monitor (`v1.3.0`)
 
 A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and system utility built with C# and WPF (.NET Framework).
 
@@ -25,7 +25,7 @@ A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and
 
 - **Three Seamless Display Modes**
   - **Compact Widget:** Circular gauges for CPU, Discrete GPU, Integrated GPU (iGPU), and RAM, plus SSD/Network telemetry and quick shortcuts.
-  - **Summary Strip (`Mini Mode`):** Ultra-compact single-line overlay with **live FPS** (via RivaTuner Statistics Server / `RTSSSharedMemoryV2`) and **customizable metrics** (`CPU %`, `CPU °C`, `GPU %`, `GPU °C`, `iGPU %`, `RAM %`, `SSD °C`, `FPS`) configurable in Settings.
+  - **Summary Strip (`Mini Mode`):** Ultra-compact single-line overlay with **live FPS** (built-in Windows DXGI ETW + RTSS fallback) and **customizable metrics** (`CPU %`, `CPU °C`, `GPU %`, `GPU °C`, `iGPU %`, `RAM %`, `SSD °C`, `FPS`) configurable in Settings.
   - **Detailed Window:** Full tabbed dashboard for Overview, Hardware Details, Processes, Settings, and Updates.
 - **Ghost Mode (Click-Through):** Toggle click-through transparency at any time with `Shift + Enter` so the widget stays visible without blocking clicks.
 - **Middle-Click Drag & Desktop Pin:** Drag the widget from anywhere using the middle mouse button, or pin it to the desktop / keep it always on top.
@@ -42,10 +42,9 @@ A lightweight, glassmorphic Windows desktop hardware monitor, overlay strip, and
 
 ### Option 1: Download Prebuilt Binary
 1. Go to the [**Releases**](https://github.com/yafermys/PulseGlass/releases) page.
-2. Download `PulseGlassWidget.exe` from the latest release.
-3. Run `PulseGlassWidget.exe` (Windows 10 / 11, .NET Framework 4.5 or later).
-   - *Tip:* Run as Administrator if you want to install Windows Updates directly from the Updates tab or apply system-level power/cooling policies.
-   - *Optional FPS Counter:* Have **RivaTuner Statistics Server (RTSS)** / MSI Afterburner running in the background to display live FPS in Summary mode.
+2. Download `PulseGlass-v1.3.0.zip` and extract both `PulseGlassWidget.exe` and `LibreHardwareMonitorLib.dll` into the same folder.
+3. Run `PulseGlassWidget.exe` (Windows 10 / 11, .NET Framework 4.7.2 or later).
+   - *Administrator Privileges:* PulseGlass requests Administrator elevation on launch so the built-in **DXGI ETW FPS counter** and **LibreHardwareMonitorLib** storage/CPU temperature sensors work out of the box without external tools like RTSS.
 
 ### Option 2: Build from Source
 ```powershell
@@ -56,8 +55,8 @@ MSBuild.exe PulseGlassWidget.csproj /p:Configuration=Release /p:Platform=AnyCPU 
 
 ## 🛠 Tech Stack
 
-- **Language & UI:** C# / WPF (.NET Framework 4.5)
-- **System Telemetry:** Windows API (`GlobalMemoryStatusEx`, `GetSystemTimes`, `GetPhysicallyInstalledSystemMemory`), WMI, Performance Counters, and `RTSSSharedMemoryV2`
+- **Language & UI:** C# / WPF (.NET Framework 4.7.2)
+- **System Telemetry:** `LibreHardwareMonitorLib` (`0.9.3`), Windows DXGI ETW (`Microsoft-Windows-DXGI`), Windows API (`GlobalMemoryStatusEx`, `GetSystemTimes`, `GetPhysicallyInstalledSystemMemory`), WMI, Performance Counters, and `RTSSSharedMemoryV2` fallback
 - **Updates:** Windows Update Agent COM (`Microsoft.Update.Session`) & GitHub Releases API
 
 ---
