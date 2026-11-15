@@ -212,15 +212,8 @@
 
                 <!-- 0. GAME / MINI STRIP MODE (Ultra compact for gaming) -->
                 <Border x:Name="MiniPanel" Grid.Row="1" Visibility="Collapsed" Background="#16FFFFFF" CornerRadius="10" Padding="10,6" BorderBrush="#33FFB085" BorderThickness="1">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="MiniOverlayText" Text="CPU 0% (--°C)  •  GPU 0% (--°C)  •  RAM 0%  •  SSD --°C"
-                                   Foreground="#FFE4D6" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                        <Button x:Name="BtnMiniCompact" Grid.Column="1" Content="Kompakt ◫" Style="{StaticResource HeaderIconBtn}" Click="BtnGameMode_Click" Margin="8,0,0,0"/>
-                    </Grid>
+                    <TextBlock x:Name="MiniOverlayText" Text="CPU 0% (--°C)  •  GPU 0% (--°C)  •  RAM 0%  •  SSD --°C  •  FPS: --"
+                               Foreground="#FFE4D6" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </Border>
 
                 <!-- 1. COMPACT WIDGET MODE -->
@@ -256,7 +249,10 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock x:Name="CompactDiskText" Text="SSD: %0  •  0.0 MB/s  •  --°C" Foreground="#FFB085" FontSize="10.5" TextTrimming="CharacterEllipsis" Margin="0,0,0,2"/>
-                            <TextBlock x:Name="CompactNetText" Grid.Row="1" Text="↓ 0.00 MB/s   ↑ 0.00 MB/s" Foreground="#CBD5E1" FontSize="10.5"/>
+                            <Grid Grid.Row="1">
+                                <TextBlock x:Name="CompactNetText" Text="↓ 0.00 MB/s   ↑ 0.00 MB/s" Foreground="#CBD5E1" FontSize="10.5" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="CompactFpsText" Text="FPS: --" Foreground="#FF4D6D" FontSize="10.5" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
                         </Grid>
                     </Border>
 
