@@ -1,0 +1,748 @@
+<Window x:Class="PulseGlassWidget.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="clr-namespace:PulseGlassWidget.Controls"
+        Title="PulseGlass Hardware Monitor"
+        Icon="pack://application:,,,/Assets/app.ico"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Width="440"
+        SizeToContent="Height"
+        MinWidth="320"
+        MinHeight="48"
+        ShowInTaskbar="True"
+        Topmost="True"
+        PreviewMouseDown="Window_PreviewMouseDown"
+        PreviewMouseMove="Window_PreviewMouseMove"
+        PreviewMouseUp="Window_PreviewMouseUp">
+
+    <Window.Resources>
+        <!-- Nar Çiçeği & Şeftali Accent Palette -->
+        <SolidColorBrush x:Key="NarAccent" Color="#FF4D6D"/>
+        <SolidColorBrush x:Key="SeftaliAccent" Color="#FFB085"/>
+        <LinearGradientBrush x:Key="NarSeftaliGrad" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#FF4D6D" Offset="0"/>
+            <GradientStop Color="#FFB085" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="HeaderIconBtn" TargetType="Button">
+            <Setter Property="Background" Value="#18FFFFFF"/>
+            <Setter Property="Foreground" Value="#F1D5D5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Margin" Value="2,0,0,0"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#44FF4D6D"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="QuickShortcutBtn" TargetType="Button">
+            <Setter Property="Background" Value="#18FFFFFF"/>
+            <Setter Property="Foreground" Value="#FFE4D6"/>
+            <Setter Property="BorderBrush" Value="#33FFB085"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#44FF4D6D"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#FF4D6D"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModePillBtn" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Background" Value="#14FFFFFF"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="#28FFB085" BorderThickness="1" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#44FF4D6D"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#FF4D6D"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#28FFB085"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TabPillBtn" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="11,6"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#3BFF4D6D"/>
+                                <Setter Property="Foreground" Value="#FFB085"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#22FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GlassCard" TargetType="Border">
+            <Setter Property="Background" Value="#16FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#28FFB085"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+
+        <!-- Dark Glass GridView Column Header -->
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="#22FF4D6D"/>
+            <Setter Property="Foreground" Value="#FFB085"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#28FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="RootContainer" Margin="5">
+        <Border.LayoutTransform>
+            <ScaleTransform x:Name="WidgetScale" ScaleX="1" ScaleY="1"/>
+        </Border.LayoutTransform>
+
+        <Border x:Name="GlassFrame"
+                CornerRadius="16"
+                BorderThickness="1.2"
+                BorderBrush="#44FFB085">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop x:Name="BgStop1" Color="#C7120F18" Offset="0"/>
+                    <GradientStop x:Name="BgStop2" Color="#D11C131E" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Grid Margin="12,8,12,11">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- DRAGGABLE HEADER (Fixed Height = 26) -->
+                <Grid x:Name="HeaderBar" Grid.Row="0" Background="Transparent" MouseLeftButtonDown="HeaderBar_MouseLeftButtonDown" Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#FF4D6D" Margin="0,0,6,0"/>
+                        <TextBlock Text="PulseGlass" Foreground="#FFF1EB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Border x:Name="AlertBadge" Grid.Column="1" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            Background="#33FF4D6D" BorderBrush="#FF4D6D" BorderThickness="1" CornerRadius="6" Padding="6,1" Margin="6,0,4,0" MaxWidth="130">
+                        <TextBlock x:Name="AlertBadgeText" Text="UYARI" Foreground="#FFB085" FontSize="9.5" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BtnGhost" Content="👻" Style="{StaticResource HeaderIconBtn}" Click="BtnGhost_Click" ToolTip="Geçirgen Mod / Arkaya Tıkla (Shift+Enter)"/>
+                        <Button x:Name="BtnTopmost" Content="📌 ✓" Style="{StaticResource HeaderIconBtn}" Click="BtnTopmost_Click" ToolTip="Her zaman üstte"/>
+                        <Button x:Name="BtnDesktopPin" Content="🖥" Style="{StaticResource HeaderIconBtn}" Click="BtnDesktopPin_Click" ToolTip="Masaüstüne sabitle"/>
+                        <Button x:Name="BtnGameMode" Content="Özet ▬" Style="{StaticResource HeaderIconBtn}" Click="BtnGameMode_Click" ToolTip="Özet / Mini Şerit Modu"/>
+                        <Button x:Name="BtnWindowMode" Content="Pencere ▢" Style="{StaticResource HeaderIconBtn}" Click="BtnWindowMode_Click" ToolTip="Tam pencere / Widget modu"/>
+                        <Button x:Name="BtnToggleMode" Content="Detay ⤢" Style="{StaticResource HeaderIconBtn}" Click="BtnToggleMode_Click" ToolTip="Kompakt / Detaylı görünüm"/>
+                        <Button x:Name="BtnMaximize" Content="◰" Style="{StaticResource HeaderIconBtn}" Click="BtnMaximize_Click" Visibility="Collapsed" ToolTip="Büyüt / Geri yükle"/>
+                        <Button x:Name="BtnMinimize" Content="—" Style="{StaticResource HeaderIconBtn}" Click="BtnMinimize_Click" ToolTip="Küçült"/>
+                        <Button x:Name="BtnClose" Content="✕" Style="{StaticResource HeaderIconBtn}" Click="BtnClose_Click" ToolTip="Kapat"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 0. GAME / MINI STRIP MODE (Ultra compact for gaming) -->
+                <Border x:Name="MiniPanel" Grid.Row="1" Visibility="Collapsed" Background="#16FFFFFF" CornerRadius="10" Padding="10,6" BorderBrush="#33FFB085" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="MiniOverlayText" Text="CPU 0% (--°C)  •  GPU 0% (--°C)  •  RAM 0%  •  SSD --°C"
+                                   Foreground="#FFE4D6" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        <Button x:Name="BtnMiniCompact" Grid.Column="1" Content="Kompakt ◫" Style="{StaticResource HeaderIconBtn}" Click="BtnGameMode_Click" Margin="8,0,0,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- 1. COMPACT WIDGET MODE -->
+                <StackPanel x:Name="CompactPanel" Grid.Row="1">
+                    <UniformGrid Columns="4" Margin="0,2,0,8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <ctrl:CircularGauge x:Name="CompactCpuGauge" Width="74" Height="74" Label="CPU" SubText="--°C"/>
+                            <TextBlock Text="CPU" Foreground="#FFE4D6" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            <TextBlock x:Name="CompactCpuClock" Text="0.0 GHz" Foreground="#FFB085" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <ctrl:CircularGauge x:Name="CompactGpuGauge" Width="74" Height="74" Label="GPU" SubText="--°C"/>
+                            <TextBlock x:Name="LblCompactGpu" Text="Harici GPU" Foreground="#FFE4D6" FontSize="10.5" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            <TextBlock x:Name="CompactGpuVram" Text="0.0 GB" Foreground="#FFB085" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <ctrl:CircularGauge x:Name="CompactIGpuGauge" Width="74" Height="74" Label="iGPU" SubText="--°C"/>
+                            <TextBlock x:Name="LblCompactIGpu" Text="Dahili GPU" Foreground="#FFE4D6" FontSize="10.5" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            <TextBlock x:Name="CompactIGpuSub" Text="0.0 GB" Foreground="#FFB085" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <ctrl:CircularGauge x:Name="CompactRamGauge" Width="74" Height="74" Label="RAM" SubText="0.0 GB"/>
+                            <TextBlock Text="RAM" Foreground="#FFE4D6" FontSize="10.5" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            <TextBlock x:Name="CompactRamDetail" Text="0/0 GB" Foreground="#FFB085" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <!-- Storage & Network Strip -->
+                    <Border Background="#14FFFFFF" CornerRadius="9" Padding="9,5" Margin="0,0,0,7">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Name="CompactDiskText" Text="SSD: %0  •  0.0 MB/s  •  --°C" Foreground="#FFB085" FontSize="10.5" TextTrimming="CharacterEllipsis" Margin="0,0,0,2"/>
+                            <TextBlock x:Name="CompactNetText" Grid.Row="1" Text="↓ 0.00 MB/s   ↑ 0.00 MB/s" Foreground="#CBD5E1" FontSize="10.5"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Quick System Modes Bar -->
+                    <UniformGrid Columns="4" Margin="0,0,0,7">
+                        <RadioButton x:Name="QuickModeQuiet" Content="Sessiz" Style="{StaticResource ModePillBtn}" Tag="Quiet" Click="QuickMode_Click"/>
+                        <RadioButton x:Name="QuickModeBalanced" Content="Dengeli" Style="{StaticResource ModePillBtn}" Tag="Balanced" IsChecked="True" Click="QuickMode_Click"/>
+                        <RadioButton x:Name="QuickModePerf" Content="Perf" Style="{StaticResource ModePillBtn}" Tag="Performance" Click="QuickMode_Click"/>
+                        <RadioButton x:Name="QuickModeTurbo" Content="Turbo" Style="{StaticResource ModePillBtn}" Tag="Turbo" Click="QuickMode_Click"/>
+                    </UniformGrid>
+
+                    <!-- Quick Shortcuts to Detail Tabs -->
+                    <UniformGrid Columns="3">
+                        <Button x:Name="BtnShortcutModes" Content="⚙ Mod &amp; Fan" Style="{StaticResource QuickShortcutBtn}" Margin="0,0,3,0" Click="ShortcutModes_Click"/>
+                        <Button x:Name="BtnShortcutProcs" Content="📊 Uygulamalar" Style="{StaticResource QuickShortcutBtn}" Margin="3,0,3,0" Click="ShortcutProcs_Click"/>
+                        <Button x:Name="BtnShortcutHw" Content="🖥 Donanım" Style="{StaticResource QuickShortcutBtn}" Margin="3,0,0,0" Click="ShortcutHw_Click"/>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- 2. DETAILED / WINDOW MODE -->
+                <Grid x:Name="DetailedPanel" Grid.Row="1" Visibility="Collapsed" MaxHeight="440">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Tab Navigation -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton x:Name="TabOverview" Content="Genel Bakış" Style="{StaticResource TabPillBtn}" IsChecked="True" Checked="Tab_Checked"/>
+                        <RadioButton x:Name="TabModes" Content="Modlar &amp; Fan" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
+                        <RadioButton x:Name="TabHardware" Content="Donanım Detayları" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
+                        <RadioButton x:Name="TabProcesses" Content="Uygulamalar" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
+                        <RadioButton x:Name="TabSettings" Content="Ayarlar" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
+                        <RadioButton x:Name="TabUpdates" Content="Güncellemeler" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
+                    </StackPanel>
+
+                    <!-- TAB 1: OVERVIEW -->
+                    <ScrollViewer x:Name="ViewOverview" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <UniformGrid Columns="4" Margin="0,0,0,10">
+                                <Border Style="{StaticResource GlassCard}" Margin="0,0,5,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <ctrl:CircularGauge x:Name="DetCpuGauge" Width="88" Height="88" SubText="--°C"/>
+                                        <TextBlock x:Name="LblDetCpu" Text="İşlemci (CPU)" Foreground="#FFF1EB" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                                        <TextBlock x:Name="DetCpuSub" Text="0.0 GHz" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource GlassCard}" Margin="3,0,3,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <ctrl:CircularGauge x:Name="DetGpuGauge" Width="88" Height="88" SubText="--°C"/>
+                                        <TextBlock x:Name="LblDetGpu" Text="Harici GPU" Foreground="#FFF1EB" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                                        <TextBlock x:Name="DetGpuSub" Text="0.0 / 0.0 GB" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource GlassCard}" Margin="3,0,3,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <ctrl:CircularGauge x:Name="DetIGpuGauge" Width="88" Height="88" SubText="--°C"/>
+                                        <TextBlock x:Name="LblDetIGpu" Text="Dahili GPU (iGPU)" Foreground="#FFF1EB" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                                        <TextBlock x:Name="DetIGpuSub" Text="Paylaşımlı: 0.0 GB" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource GlassCard}" Margin="5,0,0,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <ctrl:CircularGauge x:Name="DetRamGauge" Width="88" Height="88" SubText="0 GB"/>
+                                        <TextBlock x:Name="LblDetRam" Text="Bellek (RAM)" Foreground="#FFF1EB" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                                        <TextBlock x:Name="DetRamSub" Text="0.0 / 0.0 GB" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+
+                            <!-- Storage & Network Summary Card -->
+                            <Border Style="{StaticResource GlassCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="OverviewStorageText" Text="Depolama (SSD): Taranıyor..." Foreground="#FFB085" FontSize="11.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock x:Name="OverviewNetText" Grid.Column="1" Text="Ağ: ↓ 0.00 MB/s | ↑ 0.00 MB/s" Foreground="#FF4D6D" FontSize="11.5" FontWeight="SemiBold" Margin="12,0,0,0"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- TAB 2: SYSTEM MODES & FAN CONTROL -->
+                    <ScrollViewer x:Name="ViewModes" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock x:Name="LblModesHeader" Text="GENEL SİSTEM MODLARI (NITRO MODLARI)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Button x:Name="BtnElevateAdmin" Content="🛡 Yönetici Olarak Başlat" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Padding="8,3" Click="BtnElevateAdmin_Click"/>
+                            </Grid>
+
+                            <UniformGrid Columns="4" Margin="0,0,0,10">
+                                <RadioButton x:Name="ModeCardQuiet" Content="Sessiz" Style="{StaticResource ModePillBtn}" Tag="Quiet" Padding="10,10" Click="ModeCard_Click"/>
+                                <RadioButton x:Name="ModeCardBalanced" Content="Dengeli" Style="{StaticResource ModePillBtn}" Tag="Balanced" Padding="10,10" IsChecked="True" Click="ModeCard_Click"/>
+                                <RadioButton x:Name="ModeCardPerf" Content="Performans" Style="{StaticResource ModePillBtn}" Tag="Performance" Padding="10,10" Click="ModeCard_Click"/>
+                                <RadioButton x:Name="ModeCardTurbo" Content="Turbo" Style="{StaticResource ModePillBtn}" Tag="Turbo" Padding="10,10" Click="ModeCard_Click"/>
+                            </UniformGrid>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="ModeDescText" Text="Günlük kullanım için dengeli işlemci gücü ve otomatik fan." Foreground="#FFE4D6" FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap"/>
+
+                                    <UniformGrid Columns="2" Margin="0,0,0,8">
+                                        <StackPanel Margin="0,0,10,0">
+                                            <TextBlock x:Name="LblModeCpuMin" Text="Min CPU Gücü: %5" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldModeCpuMin" Minimum="5" Maximum="100" Value="5" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="ModeEditor_Changed"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10,0,0,0">
+                                            <TextBlock x:Name="LblModeCpuMax" Text="Maks CPU Gücü: %100" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldModeCpuMax" Minimum="25" Maximum="100" Value="100" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="ModeEditor_Changed"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,2">
+                                        <CheckBox x:Name="ChkModeActiveCool" Content="Aktif Soğutma (Fan Öncelikli)" Foreground="#E2E8F0" IsChecked="True" Margin="0,0,18,0" Checked="ModeCheck_Changed" Unchecked="ModeCheck_Changed"/>
+                                        <CheckBox x:Name="ChkModeBoost" Content="CPU Turbo Boost" Foreground="#E2E8F0" IsChecked="True" Margin="0,0,18,0" Checked="ModeCheck_Changed" Unchecked="ModeCheck_Changed"/>
+                                        <CheckBox x:Name="ChkSuppressOthers" Content="Diğer Güç/Fan Uygulamalarını Bastır" Foreground="#FFB085" IsChecked="True"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,8">
+                                        <TextBlock x:Name="LblFanHeader" Text="FAN GÜCÜ KONTROLÜ" Foreground="#FFB085" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <CheckBox x:Name="ChkAutoFan" Content="Otomatik Fan Kontrolü" Foreground="#E2E8F0" IsChecked="True" HorizontalAlignment="Right" Checked="ChkAutoFan_Changed" Unchecked="ChkAutoFan_Changed"/>
+                                    </Grid>
+
+                                    <UniformGrid Columns="2">
+                                        <StackPanel Margin="0,0,10,0">
+                                            <TextBlock x:Name="LblCpuFan" Text="CPU Fan Gücü: %55" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldCpuFan" Minimum="20" Maximum="100" Value="55" TickFrequency="5" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="ModeEditor_Changed"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10,0,0,0">
+                                            <TextBlock x:Name="LblGpuFan" Text="GPU Fan Gücü: %55" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldGpuFan" Minimum="20" Maximum="100" Value="55" TickFrequency="5" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="ModeEditor_Changed"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <TextBlock x:Name="FanHardwareStatus" Text="Durum: Windows Güç &amp; Soğutma Politikası hazır." Foreground="#FFB085" FontSize="10.5" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button x:Name="BtnApplyMode" Content="Seçili Modu ve Fan Ayarlarını Uygula" Style="{StaticResource QuickShortcutBtn}" Padding="12,9" FontSize="12" Click="BtnApplyMode_Click"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- TAB 3: HARDWARE DETAILS -->
+                    <ScrollViewer x:Name="ViewHardware" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                        <StackPanel>
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblHwCpuHeader" Text="İŞLEMCİ (CPU)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="HwCpuName" Foreground="#FFF1EB" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="HwCpuSpecs" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="HwCpuNote" Foreground="#FFB085" FontSize="10.5" Margin="0,3,0,0" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblHwGpuHeader" Text="HARİCİ EKRAN KARTI (dGPU)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="HwGpuName" Foreground="#FFF1EB" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="HwGpuSpecs" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="HwGpuNote" Foreground="#FFB085" FontSize="10.5" Margin="0,3,0,0" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblHwIGpuHeader" Text="DAHİLİ EKRAN KARTI (iGPU - İŞLEMCİ GRAFİĞİ)" Foreground="#FFB085" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="HwIGpuName" Foreground="#FFF1EB" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="HwIGpuSpecs" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblHwRamHeader" Text="BELLEK (RAM)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="HwRamSummary" Foreground="#FFF1EB" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="HwRamSlots" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblHwDiskHeader" Text="DEPOLAMA (SSD / HDD)" Foreground="#FFB085" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="HwDiskSummary" Foreground="#FFF1EB" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="HwDiskList" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- TAB 4: PROCESSES (Upgraded UI) -->
+                    <Grid x:Name="ViewProcesses" Grid.Row="1" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Summary Bar -->
+                        <Border Grid.Row="0" Background="#1AFF4D6D" BorderBrush="#33FFB085" BorderThickness="1" CornerRadius="9" Padding="10,6" Margin="0,0,0,8">
+                            <Grid>
+                                <TextBlock x:Name="ProcSummaryText" Text="Süreçler taranıyor..." Foreground="#FFE4D6" FontSize="11.5" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="LblProcLive" Text="Canlı Güncelleme" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Search / Sort / Group Bar -->
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtProcSearch" Height="30" Padding="10,4" Background="#1CFFFFFF" Foreground="#FFF1EB" BorderBrush="#38FFB085" CaretBrush="#FF4D6D" VerticalContentAlignment="Center" TextChanged="TxtProcSearch_TextChanged"/>
+                            <TextBlock x:Name="SearchPlaceholder" Text="Uygulama veya süreç ara..." Foreground="#94A3B8" FontSize="11.5" Margin="12,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+
+                            <ComboBox x:Name="CmbProcSort" Grid.Column="1" Width="130" Height="30" Margin="8,0" SelectedIndex="0" SelectionChanged="CmbProcSort_SelectionChanged">
+                                <ComboBoxItem x:Name="CmbSortCpu" Content="Sırala: CPU %"/>
+                                <ComboBoxItem x:Name="CmbSortRam" Content="Sırala: RAM"/>
+                                <ComboBoxItem x:Name="CmbSortDisk" Content="Sırala: Disk"/>
+                                <ComboBoxItem x:Name="CmbSortName" Content="Sırala: İsim"/>
+                            </ComboBox>
+
+                            <CheckBox x:Name="ChkGroupProcs" Grid.Column="2" Content="Grupla" Foreground="#FFE4D6" IsChecked="True" VerticalAlignment="Center" Checked="ChkGroupProcs_Changed" Unchecked="ChkGroupProcs_Changed"/>
+                        </Grid>
+
+                        <Border Grid.Row="2" Style="{StaticResource GlassCard}" Padding="4">
+                            <ListView x:Name="ProcListView" MinHeight="240" MaxHeight="300" Background="Transparent" BorderThickness="0" Foreground="#FFF1EB" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListView.ContextMenu>
+                                    <ContextMenu Background="#E818141E" Foreground="#FFF1EB" BorderBrush="#44FFB085" BorderThickness="1">
+                                        <MenuItem x:Name="CtxOpenLoc" Header="📂 Dosya Konumunu Aç" Click="ProcCtxOpenLocation_Click"/>
+                                        <MenuItem x:Name="CtxCopyPath" Header="📋 Dosya Yolunu Kopyala" Click="ProcCtxCopyPath_Click"/>
+                                        <Separator/>
+                                        <MenuItem x:Name="CtxKillProc" Header="⚡ Görevi Sonlandır (Anında Kapat)" Foreground="#FF4D6D" FontWeight="SemiBold" Click="ProcCtxKill_Click"/>
+                                    </ContextMenu>
+                                </ListView.ContextMenu>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Background" Value="#0AFFFFFF"/>
+                                        <Setter Property="Margin" Value="0,1.5"/>
+                                        <Setter Property="Padding" Value="4,5"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#28FF4D6D"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Uygulama" Width="230">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding DisplayName}" Foreground="#FFF1EB" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="CPU %" Width="115">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding CpuText}" Foreground="#FFB085" FontSize="11" FontWeight="SemiBold"/>
+                                                        <ProgressBar Value="{Binding CpuPercent}" Maximum="100" Height="3.5" Background="#22FFFFFF" Foreground="#FF4D6D" BorderThickness="0" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="RAM" Width="125">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding RamText}" Foreground="#FFE4D6" FontSize="11" FontWeight="SemiBold"/>
+                                                        <ProgressBar Value="{Binding RamMB}" Maximum="4096" Height="3.5" Background="#22FFFFFF" Foreground="#FFB085" BorderThickness="0" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Disk I/O" Width="110" DisplayMemberBinding="{Binding DiskText}"/>
+                                        <GridViewColumn Header="GPU %" Width="75" DisplayMemberBinding="{Binding GpuText}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                    </Grid>
+
+                    <!-- TAB 5: SETTINGS -->
+                    <ScrollViewer x:Name="ViewSettings" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                        <StackPanel>
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblSetOpacityHeader" Text="ŞEFFAFLIK VE GÖRÜNÜM (WIDGET &amp; PENCERE AYRI)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                    <Grid Margin="0,4">
+                                        <TextBlock x:Name="LblWidgetOpacity" Text="Widget Şeffaflığı (Opaklık)" Foreground="#E2E8F0" FontSize="12"/>
+                                        <TextBlock x:Name="LblWidgetOpacityVal" Text="78%" Foreground="#FFB085" FontSize="12" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Slider x:Name="SldWidgetOpacity" Minimum="0.20" Maximum="0.98" Value="0.78" TickFrequency="0.01" ValueChanged="SldWidgetOpacity_ValueChanged"/>
+
+                                    <Grid Margin="0,8,0,4">
+                                        <TextBlock x:Name="LblWindowOpacity" Text="Pencere Modu Şeffaflığı (Opaklık)" Foreground="#E2E8F0" FontSize="12"/>
+                                        <TextBlock x:Name="LblWindowOpacityVal" Text="94%" Foreground="#FF4D6D" FontSize="12" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Slider x:Name="SldWindowOpacity" Minimum="0.35" Maximum="1.00" Value="0.94" TickFrequency="0.01" ValueChanged="SldWindowOpacity_ValueChanged"/>
+
+                                    <Grid Margin="0,8,0,4">
+                                        <TextBlock x:Name="LblScale" Text="Widget Boyutu (Ölçek)" Foreground="#E2E8F0" FontSize="12"/>
+                                        <TextBlock x:Name="LblScaleVal" Text="1.00x" Foreground="#FFB085" FontSize="12" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Slider x:Name="SldScale" Minimum="0.80" Maximum="1.25" Value="1.0" TickFrequency="0.05" IsSnapToTickEnabled="True" ValueChanged="SldScale_ValueChanged"/>
+
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock x:Name="LblRefreshRate" Text="Veri Yenileme Sıklığı" Foreground="#E2E8F0" FontSize="12" VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="CmbRefreshRate" Width="120" HorizontalAlignment="Right" SelectedIndex="0" SelectionChanged="CmbRefreshRate_SelectionChanged">
+                                            <ComboBoxItem x:Name="CmbRef1" Content="1 Saniye" Tag="1000"/>
+                                            <ComboBoxItem x:Name="CmbRef2" Content="2 Saniye" Tag="2000"/>
+                                            <ComboBoxItem x:Name="CmbRef3" Content="3 Saniye" Tag="3000"/>
+                                            <ComboBoxItem x:Name="CmbRef5" Content="5 Saniye" Tag="5000"/>
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock x:Name="LblLanguage" Text="Dil / Language" Foreground="#E2E8F0" FontSize="12" VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="CmbLanguage" Width="120" HorizontalAlignment="Right" SelectedIndex="0" SelectionChanged="CmbLanguage_SelectionChanged">
+                                            <ComboBoxItem Content="Türkçe" Tag="tr"/>
+                                            <ComboBoxItem Content="English" Tag="en"/>
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <TextBlock x:Name="LblGhostTip" Text="İpucu: 'Geçirgen' modu açtığınızda widget arkasındaki pencerelere tıklayabilirsiniz. Açıp kapatmak için Shift + Enter kısayolunu kullanın." Foreground="#94A3B8" FontSize="10.5" Margin="0,8,0,8" TextWrapping="Wrap"/>
+                                    <Grid>
+                                        <CheckBox x:Name="ChkAutoStart" Content="Windows Açılışında Başlat" Foreground="#FFE4D6" VerticalAlignment="Center" Checked="ChkAutoStart_Changed" Unchecked="ChkAutoStart_Changed"/>
+                                        <Button x:Name="BtnCreateShortcut" Content="🖥 Masaüstü Kısayolu Oluştur" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Click="BtnCreateShortcut_Click"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblThemeHeader" Text="RENK PALETİ DÜZENLEYİCİ" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <UniformGrid Columns="5" Margin="0,0,0,10">
+                                        <Button x:Name="BtnThemeNar" Content="Nar &amp; Şeftali" Style="{StaticResource QuickShortcutBtn}" Margin="0,0,3,0" Tag="#FF4D6D|#FFB085|#120F18" Click="PresetTheme_Click"/>
+                                        <Button x:Name="BtnThemeOcean" Content="Okyanus" Style="{StaticResource QuickShortcutBtn}" Margin="2,0,2,0" Tag="#06B6D4|#67E8F9|#0D1321" Click="PresetTheme_Click"/>
+                                        <Button x:Name="BtnThemePurple" Content="Mor &amp; Neon" Style="{StaticResource QuickShortcutBtn}" Margin="2,0,2,0" Tag="#A855F7|#F0ABFC|#150F21" Click="PresetTheme_Click"/>
+                                        <Button x:Name="BtnThemeEmerald" Content="Zümrüt" Style="{StaticResource QuickShortcutBtn}" Margin="2,0,2,0" Tag="#10B981|#6EE7B7|#0D1B18" Click="PresetTheme_Click"/>
+                                        <Button x:Name="BtnThemeGold" Content="Altın" Style="{StaticResource QuickShortcutBtn}" Margin="3,0,0,0" Tag="#F59E0B|#FDE68A|#1A160D" Click="PresetTheme_Click"/>
+                                    </UniformGrid>
+                                    <UniformGrid Columns="3" Margin="0,0,0,8">
+                                        <StackPanel Margin="0,0,6,0">
+                                            <TextBlock x:Name="LblHexPrimary" Text="Ana Vurgu (Hex)" Foreground="#CBD5E1" FontSize="11" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtPrimaryHex" Text="#FF4D6D" Height="26" Padding="6,3" Background="#1CFFFFFF" Foreground="#FFF1EB" BorderBrush="#38FFB085"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="3,0,3,0">
+                                            <TextBlock x:Name="LblHexSecondary" Text="İkincil Vurgu (Hex)" Foreground="#CBD5E1" FontSize="11" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtSecondaryHex" Text="#FFB085" Height="26" Padding="6,3" Background="#1CFFFFFF" Foreground="#FFF1EB" BorderBrush="#38FFB085"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="6,0,0,0">
+                                            <TextBlock x:Name="LblHexBg" Text="Arka Plan (Hex)" Foreground="#CBD5E1" FontSize="11" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtBgHex" Text="#120F18" Height="26" Padding="6,3" Background="#1CFFFFFF" Foreground="#FFF1EB" BorderBrush="#38FFB085"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+                                    <Button x:Name="BtnApplyTheme" Content="Özel Renk Paletini Uygula" Style="{StaticResource QuickShortcutBtn}" Click="BtnApplyCustomTheme_Click"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblSummaryHeader" Text="ÖZET ŞERİT GÖRÜNÜMÜ (ÖZELLEŞTİR)" Foreground="#FFB085" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <UniformGrid Columns="4">
+                                        <CheckBox x:Name="ChkSumCpuPct" Content="CPU %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumCpuTemp" Content="CPU °C" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumGpuPct" Content="GPU %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumGpuTemp" Content="GPU °C" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumIGpuPct" Content="iGPU %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumRamPct" Content="RAM %" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumSsdTemp" Content="SSD °C" IsChecked="False" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                        <CheckBox x:Name="ChkSumFps" Content="FPS (RTSS)" IsChecked="True" Foreground="#FFE4D6" Margin="0,2" Checked="ChkSummary_Changed" Unchecked="ChkSummary_Changed"/>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblThreshHeader" Text="UYARI EŞİK DEĞERLERİ" Foreground="#FFB085" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <UniformGrid Columns="2">
+                                        <StackPanel Margin="0,0,10,6">
+                                            <TextBlock x:Name="LblCpuTempThresh" Text="CPU Sıcaklık Uyarısı: 85°C" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldCpuTempThresh" Minimum="60" Maximum="100" Value="85" IsSnapToTickEnabled="True" TickFrequency="5" ValueChanged="Threshold_Changed"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10,0,0,6">
+                                            <TextBlock x:Name="LblGpuTempThresh" Text="GPU Sıcaklık Uyarısı: 85°C" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldGpuTempThresh" Minimum="60" Maximum="100" Value="85" IsSnapToTickEnabled="True" TickFrequency="5" ValueChanged="Threshold_Changed"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,4,10,0">
+                                            <TextBlock x:Name="LblCpuUseThresh" Text="CPU Kullanım Uyarısı: %90" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldCpuUseThresh" Minimum="50" Maximum="100" Value="90" IsSnapToTickEnabled="True" TickFrequency="5" ValueChanged="Threshold_Changed"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10,4,0,0">
+                                            <TextBlock x:Name="LblRamUseThresh" Text="RAM Kullanım Uyarısı: %90" Foreground="#E2E8F0" FontSize="11.5"/>
+                                            <Slider x:Name="SldRamUseThresh" Minimum="50" Maximum="100" Value="90" IsSnapToTickEnabled="True" TickFrequency="5" ValueChanged="Threshold_Changed"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Border>
+
+                            <Grid Margin="2,4,2,2">
+                                <TextBlock Text="PulseGlass v1.1.0" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
+                                <Button x:Name="BtnResetDefaults" Content="Varsayılanlara Sıfırla" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Click="BtnResetDefaults_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- TAB 6: UPDATES -->
+                    <ScrollViewer x:Name="ViewUpdates" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <Grid>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock x:Name="LblUpdateCenterHeader" Text="GÜNCELLEME MERKEZİ" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock x:Name="LblUpdateScheduleNote" Text="Açılışta ve her 6 saatte bir otomatik denetlenir." Foreground="#94A3B8" FontSize="11" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <Button x:Name="BtnCheckUpdates" Content="🔄 Şimdi Denetle" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnCheckUpdates_Click"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,8">
+                                        <TextBlock x:Name="LblWinUpdatesHeader" Text="WINDOWS SİSTEM GÜNCELLEMELERİ" Foreground="#FFB085" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnInstallWinUpdates" Content="Seçili Güncellemeleri Kur" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" IsEnabled="False" Click="BtnInstallWinUpdates_Click"/>
+                                    </Grid>
+                                    <TextBlock x:Name="TxtWinUpdateStatus" Text="Henüz denetlenmedi." Foreground="#CBD5E1" FontSize="11.5" Margin="0,0,0,8" TextWrapping="Wrap"/>
+
+                                    <TextBlock x:Name="LblImportantUpdatesHeader" Text="ÖNEMLİ / ÖNERİLEN GÜNCELLEMELER" Foreground="#FF4D6D" FontSize="10.5" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <ItemsControl x:Name="WinUpdatesList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#14FFFFFF" CornerRadius="6" Padding="8,6" Margin="0,0,0,4">
+                                                    <CheckBox IsChecked="{Binding IsSelected}" Foreground="#FFE4D6" VerticalAlignment="Center">
+                                                        <StackPanel Margin="4,0,0,0">
+                                                            <TextBlock Text="{Binding Title}" Foreground="#FFF1EB" FontSize="11.5" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding MetaText}" Foreground="#94A3B8" FontSize="10.5"/>
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <TextBlock x:Name="LblOptionalUpdatesHeader" Text="İSTEĞE BAĞLI GÜNCELLEMELER" Foreground="#FFB085" FontSize="10.5" FontWeight="Bold" Margin="0,10,0,4"/>
+                                    <TextBlock x:Name="TxtNoOptionalUpdates" Text="İsteğe bağlı güncelleme bulunamadı." Foreground="#94A3B8" FontSize="11" Visibility="Collapsed" Margin="0,0,0,4"/>
+                                    <ItemsControl x:Name="WinOptionalUpdatesList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#10FFFFFF" CornerRadius="6" Padding="8,6" Margin="0,0,0,4">
+                                                    <CheckBox IsChecked="{Binding IsSelected}" Foreground="#FFE4D6" VerticalAlignment="Center">
+                                                        <StackPanel Margin="4,0,0,0">
+                                                            <TextBlock Text="{Binding Title}" Foreground="#FFF1EB" FontSize="11.5" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding MetaText}" Foreground="#94A3B8" FontSize="10.5"/>
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource GlassCard}">
+                                <Grid>
+                                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock x:Name="LblAppUpdateHeader" Text="PULSEGLASS UYGULAMA GÜNCELLEMESİ" Foreground="#FFB085" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock x:Name="TxtAppUpdateStatus" Text="Sürüm: v1.1.0 (Henüz denetlenmedi)" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <Button x:Name="BtnInstallAppUpdate" Content="Uygulamayı Güncelle" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" Click="BtnInstallAppUpdate_Click"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Border>
+    </Border>
+</Window>
