@@ -22,6 +22,7 @@ namespace PulseGlassWidget.Services
         private const uint PROCESS_TRACE_MODE_EVENT_RECORD = 0x10000000;
         private const uint EVENT_CONTROL_CODE_ENABLE_PROVIDER = 1;
         private const byte TRACE_LEVEL_INFORMATION = 4;
+        private const byte TRACE_LEVEL_VERBOSE = 5;
 
         private ulong _sessionHandle;
         private ulong _traceHandle = ulong.MaxValue;
@@ -109,8 +110,8 @@ namespace PulseGlassWidget.Services
             public long CurrentTime;
             public uint BuffersRead;
             public uint ProcessTraceMode;
-            public EVENT_TRACE_HEADER_DUMMY CurrentEvent;
-            public TRACE_LOGFILE_HEADER_DUMMY LogfileHeader;
+            public EVENT_TRACE CurrentEvent;
+            public TRACE_LOGFILE_HEADER LogfileHeader;
             public IntPtr BufferCallback;
             public uint BufferSize;
             public uint Filled;
@@ -128,10 +129,45 @@ namespace PulseGlassWidget.Services
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct TRACE_LOGFILE_HEADER_DUMMY
+        private struct EVENT_TRACE
         {
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 280)]
+            public EVENT_TRACE_HEADER_DUMMY Header;
+            public uint InstanceId;
+            public uint ParentInstanceId;
+            public Guid ParentGuid;
+            public IntPtr MofData;
+            public uint MofLength;
+            public uint ClientContext;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct TIME_ZONE_INFORMATION_DUMMY
+        {
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 172)]
             public byte[] Data;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct TRACE_LOGFILE_HEADER
+        {
+            public uint BufferSize;
+            public uint Version;
+            public uint ProviderVersion;
+            public uint NumberOfProcessors;
+            public long EndTime;
+            public uint TimerResolution;
+            public uint MaximumFileSize;
+            public uint LogFileMode;
+            public uint BuffersWritten;
+            public Guid LogInstanceGuid;
+            public IntPtr LoggerName;
+            public IntPtr LogFileName;
+            public TIME_ZONE_INFORMATION_DUMMY TimeZone;
+            public long BootTime;
+            public long PerfFreq;
+            public long StartTime;
+            public uint ReservedFlags;
+            public uint BuffersLost;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -208,8 +244,8 @@ namespace PulseGlassWidget.Services
                         _sessionHandle,
                         ref dxgi,
                         EVENT_CONTROL_CODE_ENABLE_PROVIDER,
-                        TRACE_LEVEL_INFORMATION,
-                        0, 0, 0, IntPtr.Zero);
+                        TRACE_LEVEL_VERBOSE,
+                        ulong.MaxValue, 0, 0, IntPtr.Zero);
                     if (status != 0)
                     {
                         StopExistingSession();
@@ -263,10 +299,10 @@ namespace PulseGlassWidget.Services
 
         private void OnEventRecord(ref EVENT_RECORD record)
         {
-            // DXGI Present_Start event IDs: 42 (Present_Start), 55 (Present_Start in newer Win10/11)
+            // DXGI Present_Start event IDs: 42 (Present_Start), 44 (Present1_Start), 55 (Present_Start in newer Win10/11)
             // Opcode 1 = Start
             ushort id = record.EventHeader.Id;
-            if ((id == 42 || id == 55) && record.EventHeader.Opcode == 1)
+            if ((id == 42 || id == 44 || id == 55) && record.EventHeader.Opcode == 1)
             {
                 uint pid = record.EventHeader.ProcessId;
                 if (pid == 0) return;
