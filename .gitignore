@@ -1,0 +1,6 @@
+bin/
+obj/
+Release_Publish/
+*.user
+*.suo
+.vs/
