@@ -244,7 +244,7 @@
                         <StackPanel HorizontalAlignment="Center">
                             <ctrl:CircularGauge x:Name="CompactRamGauge" Width="74" Height="74" Label="RAM" SubText="0.0 GB"/>
                             <TextBlock Text="RAM" Foreground="#FFE4D6" FontSize="10.5" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                            <TextBlock x:Name="CompactRamDetail" Text="0/0 GB" Foreground="#FFB085" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CompactRamDetail" Text="0/0 GB" Foreground="#FFB085" FontSize="10.5" FontWeight="Medium" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </UniformGrid>
 
@@ -260,18 +260,9 @@
                         </Grid>
                     </Border>
 
-                    <!-- Quick System Modes Bar -->
-                    <UniformGrid Columns="4" Margin="0,0,0,7">
-                        <RadioButton x:Name="QuickModeQuiet" Content="Sessiz" Style="{StaticResource ModePillBtn}" Tag="Quiet" Click="QuickMode_Click"/>
-                        <RadioButton x:Name="QuickModeBalanced" Content="Dengeli" Style="{StaticResource ModePillBtn}" Tag="Balanced" IsChecked="True" Click="QuickMode_Click"/>
-                        <RadioButton x:Name="QuickModePerf" Content="Perf" Style="{StaticResource ModePillBtn}" Tag="Performance" Click="QuickMode_Click"/>
-                        <RadioButton x:Name="QuickModeTurbo" Content="Turbo" Style="{StaticResource ModePillBtn}" Tag="Turbo" Click="QuickMode_Click"/>
-                    </UniformGrid>
-
                     <!-- Quick Shortcuts to Detail Tabs -->
-                    <UniformGrid Columns="3">
-                        <Button x:Name="BtnShortcutModes" Content="⚙ Mod &amp; Fan" Style="{StaticResource QuickShortcutBtn}" Margin="0,0,3,0" Click="ShortcutModes_Click"/>
-                        <Button x:Name="BtnShortcutProcs" Content="📊 Uygulamalar" Style="{StaticResource QuickShortcutBtn}" Margin="3,0,3,0" Click="ShortcutProcs_Click"/>
+                    <UniformGrid Columns="2">
+                        <Button x:Name="BtnShortcutProcs" Content="📊 Uygulamalar" Style="{StaticResource QuickShortcutBtn}" Margin="0,0,3,0" Click="ShortcutProcs_Click"/>
                         <Button x:Name="BtnShortcutHw" Content="🖥 Donanım" Style="{StaticResource QuickShortcutBtn}" Margin="3,0,0,0" Click="ShortcutHw_Click"/>
                     </UniformGrid>
                 </StackPanel>
@@ -286,7 +277,6 @@
                     <!-- Tab Navigation -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <RadioButton x:Name="TabOverview" Content="Genel Bakış" Style="{StaticResource TabPillBtn}" IsChecked="True" Checked="Tab_Checked"/>
-                        <RadioButton x:Name="TabModes" Content="Modlar &amp; Fan" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
                         <RadioButton x:Name="TabHardware" Content="Donanım Detayları" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
                         <RadioButton x:Name="TabProcesses" Content="Uygulamalar" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
                         <RadioButton x:Name="TabSettings" Content="Ayarlar" Style="{StaticResource TabPillBtn}" Checked="Tab_Checked"/>
@@ -322,7 +312,7 @@
                                     <StackPanel HorizontalAlignment="Center">
                                         <ctrl:CircularGauge x:Name="DetRamGauge" Width="88" Height="88" SubText="0 GB"/>
                                         <TextBlock x:Name="LblDetRam" Text="Bellek (RAM)" Foreground="#FFF1EB" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2"/>
-                                        <TextBlock x:Name="DetRamSub" Text="0.0 / 0.0 GB" Foreground="#FFB085" FontSize="10.5" HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="DetRamSub" Text="0.0 / 0.0 GB" Foreground="#FFB085" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                             </UniformGrid>
@@ -338,70 +328,6 @@
                                     <TextBlock x:Name="OverviewNetText" Grid.Column="1" Text="Ağ: ↓ 0.00 MB/s | ↑ 0.00 MB/s" Foreground="#FF4D6D" FontSize="11.5" FontWeight="SemiBold" Margin="12,0,0,0"/>
                                 </Grid>
                             </Border>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <!-- TAB 2: SYSTEM MODES & FAN CONTROL -->
-                    <ScrollViewer x:Name="ViewModes" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,6">
-                                <TextBlock x:Name="LblModesHeader" Text="GENEL SİSTEM MODLARI (NITRO MODLARI)" Foreground="#FF4D6D" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
-                                <Button x:Name="BtnElevateAdmin" Content="🛡 Yönetici Olarak Başlat" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Padding="8,3" Click="BtnElevateAdmin_Click"/>
-                            </Grid>
-
-                            <UniformGrid Columns="4" Margin="0,0,0,10">
-                                <RadioButton x:Name="ModeCardQuiet" Content="Sessiz" Style="{StaticResource ModePillBtn}" Tag="Quiet" Padding="10,10" Click="ModeCard_Click"/>
-                                <RadioButton x:Name="ModeCardBalanced" Content="Dengeli" Style="{StaticResource ModePillBtn}" Tag="Balanced" Padding="10,10" IsChecked="True" Click="ModeCard_Click"/>
-                                <RadioButton x:Name="ModeCardPerf" Content="Performans" Style="{StaticResource ModePillBtn}" Tag="Performance" Padding="10,10" Click="ModeCard_Click"/>
-                                <RadioButton x:Name="ModeCardTurbo" Content="Turbo" Style="{StaticResource ModePillBtn}" Tag="Turbo" Padding="10,10" Click="ModeCard_Click"/>
-                            </UniformGrid>
-
-                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
-                                <StackPanel>
-                                    <TextBlock x:Name="ModeDescText" Text="Günlük kullanım için dengeli işlemci gücü ve otomatik fan." Foreground="#FFE4D6" FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap"/>
-
-                                    <UniformGrid Columns="2" Margin="0,0,0,8">
-                                        <StackPanel Margin="0,0,10,0">
-                                            <TextBlock x:Name="LblModeCpuMin" Text="Min CPU Gücü: %5" Foreground="#E2E8F0" FontSize="11.5"/>
-                                            <Slider x:Name="SldModeCpuMin" Minimum="5" Maximum="100" Value="5" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="ModeEditor_Changed"/>
-                                        </StackPanel>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock x:Name="LblModeCpuMax" Text="Maks CPU Gücü: %100" Foreground="#E2E8F0" FontSize="11.5"/>
-                                            <Slider x:Name="SldModeCpuMax" Minimum="25" Maximum="100" Value="100" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="ModeEditor_Changed"/>
-                                        </StackPanel>
-                                    </UniformGrid>
-
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,2">
-                                        <CheckBox x:Name="ChkModeActiveCool" Content="Aktif Soğutma (Fan Öncelikli)" Foreground="#E2E8F0" IsChecked="True" Margin="0,0,18,0" Checked="ModeCheck_Changed" Unchecked="ModeCheck_Changed"/>
-                                        <CheckBox x:Name="ChkModeBoost" Content="CPU Turbo Boost" Foreground="#E2E8F0" IsChecked="True" Margin="0,0,18,0" Checked="ModeCheck_Changed" Unchecked="ModeCheck_Changed"/>
-                                        <CheckBox x:Name="ChkSuppressOthers" Content="Diğer Güç/Fan Uygulamalarını Bastır" Foreground="#FFB085" IsChecked="True"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,10">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,8">
-                                        <TextBlock x:Name="LblFanHeader" Text="FAN GÜCÜ KONTROLÜ" Foreground="#FFB085" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
-                                        <CheckBox x:Name="ChkAutoFan" Content="Otomatik Fan Kontrolü" Foreground="#E2E8F0" IsChecked="True" HorizontalAlignment="Right" Checked="ChkAutoFan_Changed" Unchecked="ChkAutoFan_Changed"/>
-                                    </Grid>
-
-                                    <UniformGrid Columns="2">
-                                        <StackPanel Margin="0,0,10,0">
-                                            <TextBlock x:Name="LblCpuFan" Text="CPU Fan Gücü: %55" Foreground="#E2E8F0" FontSize="11.5"/>
-                                            <Slider x:Name="SldCpuFan" Minimum="20" Maximum="100" Value="55" TickFrequency="5" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="ModeEditor_Changed"/>
-                                        </StackPanel>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock x:Name="LblGpuFan" Text="GPU Fan Gücü: %55" Foreground="#E2E8F0" FontSize="11.5"/>
-                                            <Slider x:Name="SldGpuFan" Minimum="20" Maximum="100" Value="55" TickFrequency="5" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="ModeEditor_Changed"/>
-                                        </StackPanel>
-                                    </UniformGrid>
-
-                                    <TextBlock x:Name="FanHardwareStatus" Text="Durum: Windows Güç &amp; Soğutma Politikası hazır." Foreground="#FFB085" FontSize="10.5" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Button x:Name="BtnApplyMode" Content="Seçili Modu ve Fan Ayarlarını Uygula" Style="{StaticResource QuickShortcutBtn}" Padding="12,9" FontSize="12" Click="BtnApplyMode_Click"/>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -668,7 +594,7 @@
                             </Border>
 
                             <Grid Margin="2,4,2,2">
-                                <TextBlock Text="PulseGlass v1.1.0" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
+                                <TextBlock Text="PulseGlass v1.2.0" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
                                 <Button x:Name="BtnResetDefaults" Content="Varsayılanlara Sıfırla" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" Click="BtnResetDefaults_Click"/>
                             </Grid>
                         </StackPanel>
@@ -734,7 +660,7 @@
                                 <Grid>
                                     <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
                                         <TextBlock x:Name="LblAppUpdateHeader" Text="PULSEGLASS UYGULAMA GÜNCELLEMESİ" Foreground="#FFB085" FontSize="11" FontWeight="Bold"/>
-                                        <TextBlock x:Name="TxtAppUpdateStatus" Text="Sürüm: v1.1.0 (Henüz denetlenmedi)" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                        <TextBlock x:Name="TxtAppUpdateStatus" Text="Sürüm: v1.2.0 (Henüz denetlenmedi)" Foreground="#CBD5E1" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <Button x:Name="BtnInstallAppUpdate" Content="Uygulamayı Güncelle" Style="{StaticResource QuickShortcutBtn}" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" Click="BtnInstallAppUpdate_Click"/>
                                 </Grid>
