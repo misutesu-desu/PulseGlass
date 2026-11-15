@@ -8,11 +8,32 @@ namespace PulseGlassWidget
     public partial class App : Application
     {
         private static Mutex _singleInstanceMutex;
+        private static bool _ownsMutex;
+
+        public static void ReleaseSingleInstanceMutex()
+        {
+            if (_singleInstanceMutex != null)
+            {
+                if (_ownsMutex)
+                {
+                    try { _singleInstanceMutex.ReleaseMutex(); } catch { }
+                    _ownsMutex = false;
+                }
+                try { _singleInstanceMutex.Dispose(); } catch { }
+                _singleInstanceMutex = null;
+            }
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             bool createdNew;
             _singleInstanceMutex = new Mutex(true, "PulseGlassWidget_SingleInstance_Mutex", out createdNew);
+            if (!createdNew)
+            {
+                // Brief wait in case the previous non-elevated instance is handing off after UAC elevation
+                try { createdNew = _singleInstanceMutex.WaitOne(1500); } catch { createdNew = false; }
+            }
+            _ownsMutex = createdNew;
             if (!createdNew)
             {
                 MessageBox.Show("PulseGlass zaten çalışıyor! Sistem tepsisinden (sağ alt) açabilirsiniz.",
@@ -40,11 +61,7 @@ namespace PulseGlassWidget
 
         protected override void OnExit(ExitEventArgs e)
         {
-            if (_singleInstanceMutex != null)
-            {
-                try { _singleInstanceMutex.ReleaseMutex(); } catch { }
-                _singleInstanceMutex.Dispose();
-            }
+            ReleaseSingleInstanceMutex();
             base.OnExit(e);
         }
     }
