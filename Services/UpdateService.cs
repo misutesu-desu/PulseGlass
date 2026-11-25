@@ -150,8 +150,11 @@ namespace PulseGlassWidget.Services
 
                     // Support both GitHub Releases API ("tag_name" / "browser_download_url") and custom manifest ("version" / "url")
                     var vMatch = Regex.Match(json, "\"(?:version|tag_name)\"\\s*:\\s*\"([^\"]+)\"");
-                    var exeMatch = Regex.Match(json, "\"browser_download_url\"\\s*:\\s*\"([^\"]+\\.exe)\"");
-                    var uMatch = exeMatch.Success ? exeMatch : Regex.Match(json, "\"(?:url|browser_download_url)\"\\s*:\\s*\"([^\"]+)\"");
+                    // Only accept an .exe link. In the GitHub API response the first "url" is the
+                    // release's own API endpoint, so a non-exe fallback would overwrite the app with JSON.
+                    var uMatch = Regex.Match(json, "\"browser_download_url\"\\s*:\\s*\"([^\"]+/PulseGlassWidget\\.exe)\"", RegexOptions.IgnoreCase);
+                    if (!uMatch.Success)
+                        uMatch = Regex.Match(json, "\"(?:browser_download_url|url)\"\\s*:\\s*\"([^\"]+\\.exe)\"", RegexOptions.IgnoreCase);
 
                     if (vMatch.Success)
                     {
