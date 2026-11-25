@@ -47,8 +47,14 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="LibreHardwareMonitorLib">
       <HintPath>Libs\LibreHardwareMonitorLib.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Loaded by App.ResolveEmbeddedAssembly so the release is a single exe. -->
+    <EmbeddedResource Include="Libs\*.dll">
+      <LogicalName>Libs.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
