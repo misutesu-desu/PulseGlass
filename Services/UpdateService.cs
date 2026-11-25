@@ -248,6 +248,13 @@ namespace PulseGlassWidget.Services
                     wc.Headers.Add("User-Agent", "PulseGlassWidget/" + CurrentVersion);
                     wc.DownloadFile(downloadUrl, newExe);
                 }
+                if (!HasPeHeader(newExe))
+                {
+                    try { File.Delete(newExe); } catch { }
+                    return isEn
+                        ? "The downloaded file is not a valid program. Update cancelled."
+                        : "İndirilen dosya geçerli bir program değil. Güncelleme iptal edildi.";
+                }
                 string cmdPath = Path.Combine(Path.GetTempPath(), "pulseglass_update.cmd");
                 string script = string.Format(
                     "@echo off\r\ntimeout /t 2 /nobreak >nul\r\nmove /y \"{0}\" \"{1}\"\r\nstart \"\" \"{1}\"\r\ndel \"%~f0\"",
@@ -259,6 +266,14 @@ namespace PulseGlassWidget.Services
             catch (Exception ex)
             {
                 return (isEn ? "App update error: " : "Uygulama güncelleme hatası: ") + ex.Message;
+            }
+        }
+
+        private static bool HasPeHeader(string path)
+        {
+            using (var fs = File.OpenRead(path))
+            {
+                return fs.Length > 2 && fs.ReadByte() == 'M' && fs.ReadByte() == 'Z';
             }
         }
     }
